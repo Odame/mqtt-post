@@ -1,5 +1,5 @@
-import { combineReducers } from "redux";
-import { useSelector, TypedUseSelectorHook } from "react-redux";
+import { combineReducers } from 'redux';
+import { useSelector, TypedUseSelectorHook } from 'react-redux';
 
 const rootReducer = combineReducers({});
 

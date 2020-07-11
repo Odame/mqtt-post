@@ -1,9 +1,7 @@
-import React from "react";
-import { Layout } from "antd";
-import "./App.css";
+import React from 'react';
+import { Layout } from 'antd';
+import './App.css';
 
-function App() {
-  return <Layout>This is app</Layout>;
+export default function App() {
+  return <Layout></Layout>;
 }
-
-export default App;
