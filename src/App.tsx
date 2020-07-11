@@ -1,8 +1,9 @@
 import React from "react";
+import { Layout } from "antd";
 import "./App.css";
 
 function App() {
-  return <div className="App">This is the app</div>;
+  return <Layout>This is app</Layout>;
 }
 
 export default App;
