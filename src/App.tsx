@@ -3,5 +3,5 @@ import { Layout } from 'antd';
 import './App.css';
 
 export default function App() {
-  return <Layout></Layout>;
+	return <div>This is the app</div>;
 }

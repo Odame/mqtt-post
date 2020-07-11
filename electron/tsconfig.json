@@ -1,18 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "allowJs": true,
-    "skipLibCheck": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "noEmitOnError": true,
-    "sourceMap": true,
-    "outDir": "../build",
-    "rootDir": "../",
-    "typeRoots": ["node_modules/@types"]
-  }
+	"compilerOptions": {
+		"target": "es5",
+		"allowJs": true,
+		"skipLibCheck": true,
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"noEmitOnError": true,
+		"sourceMap": true,
+		"outDir": "../build",
+		"rootDir": "../",
+		"typeRoots": ["node_modules/@types"]
+	}
 }
