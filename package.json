@@ -1,8 +1,19 @@
 {
-  "name": "mqtt-post-2",
+  "name": "mqtt-post",
   "version": "0.1.0",
   "private": true,
+  "main": "build/electron/main.js",
+  "homepage": "./",
   "dependencies": {
+    "electron-debug": "^3.1.0",
+    "electron-is-dev": "^1.2.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1"
+  },
+  "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -10,16 +21,29 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
-    "typescript": "~3.7.2"
+    "concurrently": "^5.2.0",
+    "cross-env": "^7.0.2",
+    "devtron": "^1.4.0",
+    "electron": "^9.1.0",
+    "electron-builder": "^22.7.0",
+    "electron-devtools-installer": "^3.1.0",
+    "nodemon": "^2.0.4",
+    "typescript": "~3.7.2",
+    "wait-on": "^5.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "debug": "cross-env NODE_ENV=development concurrently \"yarn start-react\" \"yarn nodemon-electron --inspect-brk=5001\" \"yarn tsc-electron\" ",
+    "start": "cross-env NODE_ENV=development concurrently \"yarn start-react\" \"yarn tsc-electron\" \"yarn start-electron\"",
+    "build": "electron-builder --linux",
+    "prebuild": "yarn build-react && tsc --project electron",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start-react": "cross-env NODE_ENV=development BROWSER=none PORT=5000 react-scripts start",
+    "start-electron": "wait-on tcp:5000 && tsc -p electron --incremental &&  electron --remote-debugging-port=5002 --inspect=5001 .",
+    "nodemon-electron": "wait-on tcp:5000 && tsc -p electron --incremental && nodemon --delay 1500ms --watch ./build/electron --exec electron . -- --remote-debugging-port=5002",
+    "tsc-electron": "wait-on tcp:5001 && tsc --project ./electron --watch --incremental",
+    "build-react": "react-scripts build",
+    "postinstall": "electron-builder install-app-deps"
   },
   "eslintConfig": {
     "extends": "react-app"
