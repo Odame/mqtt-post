@@ -1,9 +1,8 @@
-import electron, { app, BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 
 import path from "path";
 import isDev from "electron-is-dev";
 import electronDebug from "electron-debug";
-// import { publishToLocalMqtt } from './localMqtt';
 
 electronDebug({
   isEnabled: isDev,
@@ -47,7 +46,6 @@ function createWindow() {
     ]);
   }
   mainWindow.on("closed", () => (mainWindow = null));
-  // publishToLocalMqtt('initEvent', 'Application Initialized');
 }
 
 app.on("ready", createWindow);
