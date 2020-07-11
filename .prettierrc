@@ -1,12 +1,4 @@
 {
-	"overrides": [
-		{
-			"files": [".prettierrc"],
-			"options": {
-				"parser": "json"
-			}
-		}
-	],
 	"singleQuote": true,
 	"useTabs": true,
 	"tabWidth": 2
