@@ -5,4 +5,27 @@
 	height: 100vh;
 	padding: 0px !important;
 	margin: 0px !important;
+	overflow: hidden;
+
+	display: flex;
+	flex-direction: row;
+}
+
+.App .sidepane {
+	height: 100%;
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 300px;
+	overflow: hidden;
+}
+
+.App .pages {
+	height: 100%;
+	width: calc(100% - 300px);
+	right: 0px;
+	top: 0;
+	position: fixed;
+	padding: 8px 8px 8px 8px;
+	overflow: hidden;
 }

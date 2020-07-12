@@ -1,0 +1,8 @@
+{
+	"welcome": "/welcome",
+	"workspace": "/workspace",
+	"newConnection": "/new-connection",
+	"editConnection": "/edit-connection",
+	"generalSettings": "/general-settings",
+	"about": "/about"
+}
