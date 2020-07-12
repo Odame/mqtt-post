@@ -10,6 +10,9 @@ export default function NewConnection() {
 				width: '100%',
 				height: '100%',
 				overflowY: 'auto',
+				paddingLeft: '18px',
+				paddingRight: '18px',
+				paddingBottom: '18px',
 			}}
 		>
 			<Tabs
@@ -17,7 +20,12 @@ export default function NewConnection() {
 				renderTabBar={(props, DefaultTabBar) => (
 					<DefaultTabBar
 						{...props}
-						style={{ top: '0', position: 'sticky', zIndex: 1 }}
+						style={{
+							top: '0',
+							position: 'sticky',
+							zIndex: 1,
+							marginBottom: '18px',
+						}}
 					/>
 				)}
 			>

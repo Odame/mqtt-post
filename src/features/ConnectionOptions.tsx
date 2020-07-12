@@ -181,10 +181,18 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						</Space>
 					</Form.Item>
 
-					<Form.Item name="autoReconnect" label="Auto Reconnect">
+					<Form.Item
+						name="autoReconnect"
+						label="Auto Reconnect"
+						labelCol={{ span: 6 }}
+					>
 						<Switch defaultChecked={false} />
 					</Form.Item>
-					<Form.Item name="cleanSession" label="Clean Session">
+					<Form.Item
+						name="cleanSession"
+						label="Clean Session"
+						labelCol={{ span: 6 }}
+					>
 						<Switch defaultChecked />
 					</Form.Item>
 					<Form.Item
@@ -192,6 +200,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						name="connectTimeout"
 						initialValue={10}
 						required
+						labelCol={{ span: 6 }}
 					>
 						<InputNumber min={0} />
 					</Form.Item>
@@ -200,11 +209,16 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						name="keepalive"
 						initialValue={30}
 						required
+						labelCol={{ span: 6 }}
 					>
 						<InputNumber min={0} />
 					</Form.Item>
 
-					<Form.Item name="protocolVersion" label="MQTT Version">
+					<Form.Item
+						name="protocolVersion"
+						label="MQTT Version"
+						labelCol={{ span: 6 }}
+					>
 						<Radio.Group defaultValue={5} buttonStyle="solid">
 							<Radio.Button value={3}>v3.1.1</Radio.Button>
 							<Radio.Button value={5}>{`  v5  `}</Radio.Button>
@@ -219,7 +233,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 					>
 						{({ getFieldValue }) => {
 							return getFieldValue('protocolVersion') === 5 ? (
-								<Form.Item label="MQTT 5 Options">
+								<Form.Item label="MQTT 5 Options" labelCol={{ span: 6 }}>
 									<Space
 										direction="horizontal"
 										align="center"
@@ -267,7 +281,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 				</Card>
 
 				<Card type="inner" title="Certificate" extra={<InfoButton link="" />}>
-					<Form.Item name="ssl_tls" label="SSL/TLS">
+					<Form.Item name="ssl_tls" label="SSL/TLS" labelCol={{ span: 6 }}>
 						<Switch defaultChecked={false} />
 					</Form.Item>
 					<Form.Item
@@ -280,7 +294,11 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 							console.log(`ssl is ${getFieldValue('ssl_tls')}`);
 							const isSSL = getFieldValue('ssl_tls') === true;
 							return (
-								<Form.Item name="certSign" label="Signing">
+								<Form.Item
+									name="certSign"
+									label="Signing"
+									labelCol={{ span: 6 }}
+								>
 									<Radio.Group
 										disabled={!isSSL}
 										defaultValue="serverSigned"
@@ -308,7 +326,12 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 							return (
 								<>
 									{/* TODO: Specify the file types for the Upload components */}
-									<Form.Item name="caFile" label="CA File" required>
+									<Form.Item
+										name="caFile"
+										label="CA File"
+										required
+										labelCol={{ span: 6 }}
+									>
 										<Upload {...getFileProps('caFile')} disabled={disabled}>
 											<Button disabled={disabled}>
 												<FolderOpenOutlined color="grey" /> Select File
@@ -318,6 +341,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 									<Form.Item
 										name="clientCertFile"
 										label="Client Certificate File"
+										labelCol={{ span: 6 }}
 									>
 										<Upload
 											{...getFileProps('clientCertFile')}
@@ -328,7 +352,11 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 											</Button>
 										</Upload>
 									</Form.Item>
-									<Form.Item name="clientKeyFile" label="Client Key File">
+									<Form.Item
+										name="clientKeyFile"
+										label="Client Key File"
+										labelCol={{ span: 6 }}
+									>
 										<Upload
 											{...getFileProps('clientKeyFile')}
 											disabled={disabled}
@@ -341,6 +369,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 									<Form.Item
 										name="strictValidateCert"
 										label="Strict Validate Cert?"
+										labelCol={{ span: 6 }}
 									>
 										<Switch defaultChecked={false} disabled={disabled} />
 									</Form.Item>
