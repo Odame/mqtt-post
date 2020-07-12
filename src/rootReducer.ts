@@ -1,7 +1,10 @@
 import { combineReducers } from 'redux';
 import { useSelector, TypedUseSelectorHook } from 'react-redux';
+import connectionsReducer from './features/connectionsList/ConnectionsSlice';
 
-const rootReducer = combineReducers({});
+const rootReducer = combineReducers({
+	connections: connectionsReducer,
+});
 
 /** Structure of the entire application state in redux */
 export type AppRootState = ReturnType<typeof rootReducer>;

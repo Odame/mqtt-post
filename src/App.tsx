@@ -1,7 +1,11 @@
 import React from 'react';
-import { Layout } from 'antd';
 import './App.css';
+import SidePane from './containers/SidePane';
 
 export default function App() {
-	return <div>This is the app</div>;
+	return (
+		<div className="App">
+			<SidePane />
+		</div>
+	);
 }
