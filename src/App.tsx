@@ -11,7 +11,7 @@ import About from './features/About';
 
 export default function App() {
 	return (
-		<div className="App">
+		<div className="App no-highlight">
 			<SidePane className="sidepane" />
 			<div className="pages">
 				<Switch>
