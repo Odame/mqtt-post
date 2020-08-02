@@ -1,3 +1,3 @@
 /* eslint-disable no-undef */
-window.electron = require('electron');
+(window as any).electron = require('electron');
 // attach global variables to electron
