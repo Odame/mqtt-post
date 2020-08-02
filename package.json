@@ -42,15 +42,16 @@
 		"wait-on": "^5.1.0"
 	},
 	"scripts": {
-		"debug": "cross-env NODE_ENV=development concurrently \"yarn start-react\" \"yarn nodemon-electron --inspect-brk=5001\" \"yarn tsc-electron\" ",
+		"dev": "cross-env NODE_ENV=development concurrently \"yarn start-react\" \"yarn start-electron-with-nodemon\" \"yarn tsc-electron\" ",
+		"dev-brk": "cross-env NODE_ENV=development concurrently \"yarn start-react\" \"yarn start-electron-with-nodemon --inspect-brk=5001\" \"yarn tsc-electron\" ",
 		"start": "cross-env NODE_ENV=development concurrently \"yarn start-react\" \"yarn tsc-electron\" \"yarn start-electron\"",
 		"build": "electron-builder --linux",
 		"prebuild": "yarn build-react && tsc --project electron",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"start-react": "cross-env NODE_ENV=development BROWSER=none PORT=5000 react-scripts start",
+		"start-react": "cross-env BROWSER=none PORT=5000 react-scripts start",
 		"start-electron": "wait-on tcp:5000 && tsc -p electron --incremental &&  electron --remote-debugging-port=5002 --inspect=5001 .",
-		"nodemon-electron": "wait-on tcp:5000 && tsc -p electron --incremental && nodemon --delay 1500ms --watch ./build/electron --exec electron . -- --remote-debugging-port=5002",
+		"start-electron-with-nodemon": "wait-on tcp:5000 && tsc -p electron --incremental && nodemon --delay 1500ms --watch ./build/electron --exec electron . -- --remote-debugging-port=5002",
 		"tsc-electron": "wait-on tcp:5001 && tsc --project ./electron --watch --incremental",
 		"build-react": "react-scripts build",
 		"postinstall": "electron-builder install-app-deps"
