@@ -15,3 +15,5 @@ body {
 	-webkit-user-select: none !important;
 	-o-user-select: none !important;
 }
+
+@import '~antd/dist/antd.css';

@@ -1,0 +1,14 @@
+.new-connection {
+	position: absolute;
+}
+
+.new-connection .tabs-container {
+	padding-top: 60px;
+}
+.new-connection .tabs-header {
+	position: fixed;
+	top: 0;
+	z-index: 1;
+	background-color: white;
+	width: 100%;
+}
