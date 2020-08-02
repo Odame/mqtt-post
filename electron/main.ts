@@ -44,7 +44,11 @@ function createWindow() {
 			REDUX_DEVTOOLS,
 			REACT_DEVELOPER_TOOLS,
 			REACT_PERF,
-		]);
+		])
+			.then(() => console.log('Devtools extensions installed successfully'))
+			.catch((err: Error) =>
+				console.error('Error installing devtools extensions\n', err)
+			);
 	}
 	mainWindow.on('closed', () => (mainWindow = null));
 }
