@@ -1,5 +1,6 @@
 .new-connection {
 	position: absolute;
+	padding-bottom: 90px !important;
 }
 
 .new-connection .tabs-container {
@@ -11,4 +12,20 @@
 	z-index: 1;
 	background-color: white;
 	width: 100%;
+}
+
+.new-connection .action-button {
+	position: fixed;
+	bottom: 30px;
+	right: 60px;
+	width: 60px;
+	height: 60px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background-color: darkslategray;
+}
+.new-connection .action-button > span {
+	font-size: 26px;
+}
+.new-connection .action-button:hover {
+	transform: scale(1.1);
 }
