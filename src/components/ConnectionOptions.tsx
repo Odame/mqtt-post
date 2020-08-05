@@ -10,6 +10,7 @@ import {
 	Switch,
 	Card,
 	Space,
+	Col,
 } from 'antd';
 import { RcFile } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
@@ -18,7 +19,10 @@ import {
 	FolderOpenOutlined,
 	SyncOutlined,
 } from '@ant-design/icons';
-import { IConnectionOptions } from './connectionsList/ConnectionsSlice';
+import { IConnectionOptions } from '../features/connectionsList/ConnectionsSlice';
+import { FormInstance } from 'antd/lib/form';
+import { ColProps } from 'antd/lib/col';
+import { useForm } from 'antd/lib/form/Form';
 
 const { shell } = window.require('electron');
 const openExternalLink = (link: string) => {
@@ -38,24 +42,72 @@ const InfoLinks = {
 	lastWill: '',
 };
 
-type Props = {
+type ConnectionOptionsProps = {
 	connId?: string;
 	prevOptions?: Partial<IConnectionOptions>;
+	formRef: (form: FormInstance) => void;
 };
 
 const inlineFormItemStyles: React.CSSProperties = {
 	display: 'inline-block',
 };
 
-const ConnectionOptions = ({ connId, prevOptions }: Props) => {
-	const connectionId = connId || Date.now().toString();
-	const [clientId, setClientId] = useState<string>('ghghghf');
-	const [form] = Form.useForm();
+const formColProps: Record<
+	'default' | 'nested',
+	{ labelCol: ColProps; wrapperCol: ColProps }
+> = {
+	default: {
+		labelCol: {
+			sm: {
+				span: 6,
+			},
+			lg: {
+				span: 4,
+			},
+		},
+		wrapperCol: {
+			sm: {
+				span: 18,
+			},
+			lg: {
+				span: 16,
+			},
+		},
+	},
+	nested: {
+		labelCol: {
+			sm: {
+				span: 10,
+			},
+			lg: {
+				span: 6,
+			},
+		},
+		wrapperCol: {
+			sm: {
+				span: 12,
+			},
+			lg: {
+				span: 16,
+			},
+		},
+	},
+};
 
-	const [_, setVar] = useState<number>();
+const generateRandomClientId = () =>
+	'mqtt_post_' + Math.random().toString(16).substr(2, 8);
+
+const ConnectionOptions = ({
+	connId,
+	prevOptions,
+	formRef,
+}: ConnectionOptionsProps) => {
+	const [form] = useForm();
+	const connectionId = connId || Date.now().toString();
+	const [clientId, setClientId] = useState<string>(generateRandomClientId());
 	useEffect(() => {
-		setVar((c) => Math.random());
-	}, []);
+		form.setFieldsValue({ clientId: clientId });
+	}, [clientId, form]);
 
 	const getFileProps = (name: string) => {
 		return {
@@ -68,8 +120,12 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 		};
 	};
 
+	useEffect(() => {
+		formRef(form);
+	}, [form, formRef]);
+
 	return (
-		<Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 16 }}>
+		<Form form={form} {...formColProps.default} scrollToFirstError>
 			<Space
 				direction="vertical"
 				size="large"
@@ -80,7 +136,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 					title="General"
 					extra={<InfoButton link={InfoLinks.general} />}
 				>
-					<Form.Item label="Name" name="name" required>
+					<Form.Item label="Name" name="name" rules={[{ required: true }]}>
 						<Input placeholder="Name for identifying this connection" />
 					</Form.Item>
 
@@ -91,12 +147,11 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 									type="link"
 									size="small"
 									shape="circle"
-									onClick={() => {}}
+									onClick={() => setClientId(generateRandomClientId())}
 									color="green"
 									icon={<SyncOutlined />}
 								/>
 							}
-							value={clientId}
 							placeholder="Client ID to use in this connection"
 						/>
 					</Form.Item>
@@ -184,14 +239,14 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 					<Form.Item
 						name="autoReconnect"
 						label="Auto Reconnect"
-						labelCol={{ span: 6 }}
+						{...formColProps.nested}
 					>
 						<Switch defaultChecked={false} />
 					</Form.Item>
 					<Form.Item
 						name="cleanSession"
 						label="Clean Session"
-						labelCol={{ span: 6 }}
+						{...formColProps.nested}
 					>
 						<Switch defaultChecked />
 					</Form.Item>
@@ -200,7 +255,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						name="connectTimeout"
 						initialValue={10}
 						required
-						labelCol={{ span: 6 }}
+						{...formColProps.nested}
 					>
 						<InputNumber min={0} />
 					</Form.Item>
@@ -209,7 +264,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						name="keepalive"
 						initialValue={30}
 						required
-						labelCol={{ span: 6 }}
+						{...formColProps.nested}
 					>
 						<InputNumber min={0} />
 					</Form.Item>
@@ -217,7 +272,8 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 					<Form.Item
 						name="protocolVersion"
 						label="MQTT Version"
-						labelCol={{ span: 6 }}
+						{...formColProps.nested}
+						required
 					>
 						<Radio.Group defaultValue={5} buttonStyle="solid">
 							<Radio.Button value={3}>v3.1.1</Radio.Button>
@@ -232,8 +288,11 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						}
 					>
 						{({ getFieldValue }) => {
-							return getFieldValue('protocolVersion') === 5 ? (
-								<Form.Item label="MQTT 5 Options" labelCol={{ span: 6 }}>
+							const protocolVersion: number | undefined = getFieldValue(
+								'protocolVersion'
+							);
+							return protocolVersion === 5 ? (
+								<Form.Item label="MQTT 5 Options" {...formColProps.nested}>
 									<Space
 										direction="horizontal"
 										align="center"
@@ -281,7 +340,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 				</Card>
 
 				<Card type="inner" title="Certificate" extra={<InfoButton link="" />}>
-					<Form.Item name="ssl_tls" label="SSL/TLS" labelCol={{ span: 6 }}>
+					<Form.Item name="ssl_tls" label="SSL/TLS" {...formColProps.nested}>
 						<Switch defaultChecked={false} />
 					</Form.Item>
 					<Form.Item
@@ -291,13 +350,12 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 						}
 					>
 						{({ getFieldValue }) => {
-							console.log(`ssl is ${getFieldValue('ssl_tls')}`);
 							const isSSL = getFieldValue('ssl_tls') === true;
 							return (
 								<Form.Item
 									name="certSign"
 									label="Signing"
-									labelCol={{ span: 6 }}
+									{...formColProps.nested}
 								>
 									<Radio.Group
 										disabled={!isSSL}
@@ -330,7 +388,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 										name="caFile"
 										label="CA File"
 										required
-										labelCol={{ span: 6 }}
+										{...formColProps.nested}
 									>
 										<Upload {...getFileProps('caFile')} disabled={disabled}>
 											<Button disabled={disabled}>
@@ -341,7 +399,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 									<Form.Item
 										name="clientCertFile"
 										label="Client Certificate File"
-										labelCol={{ span: 6 }}
+										{...formColProps.nested}
 									>
 										<Upload
 											{...getFileProps('clientCertFile')}
@@ -355,7 +413,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 									<Form.Item
 										name="clientKeyFile"
 										label="Client Key File"
-										labelCol={{ span: 6 }}
+										{...formColProps.nested}
 									>
 										<Upload
 											{...getFileProps('clientKeyFile')}
@@ -369,7 +427,7 @@ const ConnectionOptions = ({ connId, prevOptions }: Props) => {
 									<Form.Item
 										name="strictValidateCert"
 										label="Strict Validate Cert?"
-										labelCol={{ span: 6 }}
+										{...formColProps.nested}
 									>
 										<Switch defaultChecked={false} disabled={disabled} />
 									</Form.Item>
