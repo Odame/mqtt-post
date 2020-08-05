@@ -10,15 +10,10 @@ import {
 	Switch,
 	Card,
 	Space,
-	Col,
 } from 'antd';
 import { RcFile } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
-import {
-	InfoCircleOutlined,
-	FolderOpenOutlined,
-	SyncOutlined,
-} from '@ant-design/icons';
+import { FolderOpenOutlined, SyncOutlined } from '@ant-design/icons';
 import { IConnectionOptions } from '../features/connectionsList/ConnectionsSlice';
 import { FormInstance } from 'antd/lib/form';
 import { ColProps } from 'antd/lib/col';
@@ -58,6 +53,7 @@ const formColProps: Record<
 > = {
 	default: {
 		labelCol: {
+			xs: { span: 24 },
 			sm: {
 				span: 6,
 			},
@@ -66,6 +62,7 @@ const formColProps: Record<
 			},
 		},
 		wrapperCol: {
+			xs: { span: 24 },
 			sm: {
 				span: 18,
 			},
@@ -76,6 +73,7 @@ const formColProps: Record<
 	},
 	nested: {
 		labelCol: {
+			xs: { span: 20, offset: 2 },
 			sm: {
 				span: 10,
 			},
@@ -84,6 +82,7 @@ const formColProps: Record<
 			},
 		},
 		wrapperCol: {
+			xs: { span: 20, offset: 2 },
 			sm: {
 				span: 12,
 			},
@@ -136,11 +135,19 @@ const ConnectionOptions = ({
 					title="General"
 					extra={<InfoButton link={InfoLinks.general} />}
 				>
-					<Form.Item label="Name" name="name" rules={[{ required: true }]}>
+					<Form.Item
+						label="Name"
+						name="name"
+						rules={[{ required: true, min: 2 }]}
+					>
 						<Input placeholder="Name for identifying this connection" />
 					</Form.Item>
 
-					<Form.Item label="Client ID" name="clientId" required>
+					<Form.Item
+						label="Client ID"
+						name="clientId"
+						rules={[{ required: true, min: 2 }]}
+					>
 						<Input
 							addonAfter={
 								<Button
@@ -158,7 +165,7 @@ const ConnectionOptions = ({
 
 					<Form.Item label="Host" required>
 						<Input.Group compact>
-							<Form.Item name="protocol" required noStyle>
+							<Form.Item name="protocol" rules={[{ required: true }]} noStyle>
 								<Select
 									style={{ width: '20%' }}
 									placeholder="Protocol"
@@ -182,7 +189,11 @@ const ConnectionOptions = ({
 										getFieldValue('protocol')
 									);
 									return (
-										<Form.Item name="hostname" noStyle>
+										<Form.Item
+											name="hostname"
+											noStyle
+											rules={[{ required: true }]}
+										>
 											<Input
 												style={{ width: isWebSockets ? '40%' : '60%' }}
 												placeholder="Hostname"
@@ -192,7 +203,11 @@ const ConnectionOptions = ({
 								}}
 							</Form.Item>
 
-							<Form.Item name="port" noStyle>
+							<Form.Item
+								name="port"
+								noStyle
+								rules={[{ required: true, max: 65535, min: 0 }]}
+							>
 								<InputNumber
 									style={{ width: '20%' }}
 									min={0}
@@ -208,7 +223,7 @@ const ConnectionOptions = ({
 							>
 								{({ getFieldValue }) => {
 									return ['wss', 'ws'].includes(getFieldValue('protocol')) ? (
-										<Form.Item name="path" noStyle>
+										<Form.Item name="path" noStyle rules={[{ required: true }]}>
 											<Input placeholder="Path" style={{ width: '20%' }} />
 										</Form.Item>
 									) : null;
@@ -254,7 +269,7 @@ const ConnectionOptions = ({
 						label="Connect Timeout (s)"
 						name="connectTimeout"
 						initialValue={10}
-						required
+						rules={[{ required: true }]}
 						{...formColProps.nested}
 					>
 						<InputNumber min={0} />
@@ -263,7 +278,7 @@ const ConnectionOptions = ({
 						label="Keep Alive (s)"
 						name="keepalive"
 						initialValue={30}
-						required
+						rules={[{ required: true, min: 0 }]}
 						{...formColProps.nested}
 					>
 						<InputNumber min={0} />
@@ -273,7 +288,7 @@ const ConnectionOptions = ({
 						name="protocolVersion"
 						label="MQTT Version"
 						{...formColProps.nested}
-						required
+						rules={[{ required: true }]}
 					>
 						<Radio.Group defaultValue={5} buttonStyle="solid">
 							<Radio.Button value={3}>v3.1.1</Radio.Button>
@@ -314,6 +329,7 @@ const ConnectionOptions = ({
 											name="receiveMaximum"
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
+											rules={[{ min: 0 }]}
 										>
 											<InputNumber
 												min={0}
@@ -325,6 +341,7 @@ const ConnectionOptions = ({
 											name="topicAliasMaximum"
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
+											rules={[{ min: 0 }]}
 										>
 											<InputNumber
 												min={0}
@@ -356,6 +373,7 @@ const ConnectionOptions = ({
 									name="certSign"
 									label="Signing"
 									{...formColProps.nested}
+									rules={!isSSL ? undefined : [{ required: true }]}
 								>
 									<Radio.Group
 										disabled={!isSSL}
@@ -387,7 +405,7 @@ const ConnectionOptions = ({
 									<Form.Item
 										name="caFile"
 										label="CA File"
-										required
+										rules={disabled ? undefined : [{ required: true }]}
 										{...formColProps.nested}
 									>
 										<Upload {...getFileProps('caFile')} disabled={disabled}>
@@ -400,6 +418,7 @@ const ConnectionOptions = ({
 										name="clientCertFile"
 										label="Client Certificate File"
 										{...formColProps.nested}
+										rules={disabled ? undefined : [{ required: true }]}
 									>
 										<Upload
 											{...getFileProps('clientCertFile')}
@@ -414,6 +433,7 @@ const ConnectionOptions = ({
 										name="clientKeyFile"
 										label="Client Key File"
 										{...formColProps.nested}
+										rules={disabled ? undefined : [{ required: true }]}
 									>
 										<Upload
 											{...getFileProps('clientKeyFile')}
@@ -442,22 +462,39 @@ const ConnectionOptions = ({
 						<Input placeholder="eg: nodes/014/offline" />
 					</Form.Item>
 
-					<Form.Item name="lastWillQoS" label="QoS">
-						<Radio.Group
-							options={[
-								{ value: 0, label: 0 },
-								{ value: 1, label: 1 },
-								{ value: 2, label: 2 },
-							]}
-						/>
-					</Form.Item>
+					<Form.Item
+						noStyle
+						shouldUpdate={(prevValues, currValues) =>
+							prevValues.lastWillTopic !== currValues.lastWillTopic
+						}
+					>
+						{({ getFieldValue }) => {
+							const lastWillTopic = getFieldValue('lastWillTopic') as string;
+							const disabled =
+								lastWillTopic === undefined || lastWillTopic.trim() === '';
+							return (
+								<>
+									<Form.Item name="lastWillQoS" label="QoS">
+										<Radio.Group
+											disabled={disabled}
+											options={[
+												{ value: 0, label: 0 },
+												{ value: 1, label: 1 },
+												{ value: 2, label: 2 },
+											]}
+										/>
+									</Form.Item>
 
-					<Form.Item name="lastWillRetain" label="Retain">
-						<Switch defaultChecked={false} />
-					</Form.Item>
+									<Form.Item name="lastWillRetain" label="Retain">
+										<Switch defaultChecked={false} disabled={disabled} />
+									</Form.Item>
 
-					<Form.Item name="lastWillPayload" label="Payload">
-						<Input.TextArea />
+									<Form.Item name="lastWillPayload" label="Payload">
+										<Input.TextArea disabled={disabled} />
+									</Form.Item>
+								</>
+							);
+						}}
 					</Form.Item>
 				</Card>
 			</Space>
