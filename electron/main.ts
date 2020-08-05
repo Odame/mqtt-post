@@ -14,8 +14,8 @@ let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
-		width: 720,
-		height: 512,
+		width: 920,
+		height: 712,
 		backgroundColor: '#ffffff',
 		webPreferences: {
 			nodeIntegration: true,
@@ -51,6 +51,9 @@ function createWindow() {
 			);
 	}
 	mainWindow.on('closed', () => (mainWindow = null));
+	mainWindow.on('resize', () => {
+		console.log(mainWindow?.getSize());
+	});
 }
 
 app.on('ready', createWindow);
