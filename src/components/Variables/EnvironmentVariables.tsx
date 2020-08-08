@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import Form, { FormInstance } from 'antd/lib/form';
-import { Space, Input, Button } from 'antd';
+import { Input, Button } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColProps } from 'antd/lib/col';
 import './EnvironmentVariables.css';
@@ -34,9 +34,14 @@ const formColProps = {
 	},
 };
 
+type IVar = {
+	name: string;
+	value: string;
+	editable: boolean;
+};
 type EnvironmentVariablesProps = {
 	form: FormInstance;
-	constKeyValuePairs?: Array<{ varName: string; varValue: string }>;
+	initialNameValuePairs?: Array<{ varName: string; varValue: string }>;
 };
 const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 	props
@@ -52,9 +57,7 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 				autoComplete="off"
 				{...formColProps.default}
 				initialValues={{
-					keyValuePairs: props.constKeyValuePairs
-						? props.constKeyValuePairs
-						: [],
+					keyValuePairs: props.initialNameValuePairs || [],
 				}}
 			>
 				<Form.List name="keyValuePairs">
@@ -62,10 +65,6 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 						return (
 							<>
 								{fields.map((field, i) => {
-									const disabled =
-										props.constKeyValuePairs &&
-										props.constKeyValuePairs.length > 0 &&
-										i < props.constKeyValuePairs.length;
 									return (
 										<Form.Item
 											label={`Item #${(field.fieldKey + 1).toString()}`}
@@ -81,10 +80,9 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 													noStyle
 													name={[field.name, 'varName']}
 													fieldKey={[field.fieldKey, 'varName']}
-													rules={[{ required: true, message: 'Missing name' }]}
 													style={{ display: 'inline-block' }}
 												>
-													<Input placeholder="Name" disabled={disabled} />
+													<Input placeholder="Name" />
 												</Form.Item>
 												<Form.Item
 													className="environment-variable-input"
@@ -92,15 +90,13 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 													noStyle
 													name={[field.name, 'varValue']}
 													fieldKey={[field.fieldKey, 'varValue']}
-													rules={[{ required: true, message: 'Missing value' }]}
 													style={{ display: 'inline-block' }}
 												>
-													<Input placeholder="Value" disabled={disabled} />
+													<Input placeholder="Value" />
 												</Form.Item>
 
 												<Button
 													className="remove-environment-variable-button"
-													disabled={disabled}
 													onClick={() => {
 														remove(field.name);
 													}}

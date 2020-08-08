@@ -62,7 +62,7 @@ export default function NewConnection() {
 				>
 					<EnvironmentVariables
 						form={environmentVariablesForm}
-						constKeyValuePairs={[
+						initialNameValuePairs={[
 							{ varName: 'one', varValue: '1' },
 							{ varName: 'two', varValue: '2' },
 							{ varName: 'three', varValue: '3' },
