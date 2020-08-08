@@ -1,0 +1,13 @@
+.environment-variables-entry-container {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.environment-variables-entry-container > input {
+	flex-grow: 2;
+	margin-right: 8px !important;
+}
+.environment-variables-entry-container > .remove-environment-variable-button {
+	flex-grow: 0;
+}
