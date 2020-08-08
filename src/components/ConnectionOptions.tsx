@@ -14,10 +14,9 @@ import {
 import { RcFile } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
 import { FolderOpenOutlined, SyncOutlined } from '@ant-design/icons';
-import { IConnectionOptions } from '../features/connectionsList/ConnectionsSlice';
 import { FormInstance } from 'antd/lib/form';
 import { ColProps } from 'antd/lib/col';
-import { useForm } from 'antd/lib/form/Form';
+import { defaultFormValidateMessages } from '../utils/formValidation';
 
 const { shell } = window.require('electron');
 const openExternalLink = (link: string) => {
@@ -37,12 +36,6 @@ const InfoLinks = {
 	lastWill: '',
 };
 
-type ConnectionOptionsProps = {
-	connId?: string;
-	prevOptions?: Partial<IConnectionOptions>;
-	formRef: (form: FormInstance) => void;
-};
-
 const inlineFormItemStyles: React.CSSProperties = {
 	display: 'inline-block',
 };
@@ -54,41 +47,25 @@ const formColProps: Record<
 	default: {
 		labelCol: {
 			xs: { span: 24 },
-			sm: {
-				span: 6,
-			},
-			lg: {
-				span: 4,
-			},
+			sm: { span: 6 },
+			lg: { span: 4 },
 		},
 		wrapperCol: {
 			xs: { span: 24 },
-			sm: {
-				span: 18,
-			},
-			lg: {
-				span: 16,
-			},
+			sm: { span: 18 },
+			lg: { span: 16 },
 		},
 	},
 	nested: {
 		labelCol: {
 			xs: { span: 20, offset: 2 },
-			sm: {
-				span: 10,
-			},
-			lg: {
-				span: 6,
-			},
+			sm: { span: 10, offset: 0 },
+			lg: { span: 6, offset: 0 },
 		},
 		wrapperCol: {
 			xs: { span: 20, offset: 2 },
-			sm: {
-				span: 12,
-			},
-			lg: {
-				span: 16,
-			},
+			sm: { span: 12, offset: 0 },
+			lg: { span: 16, offset: 0 },
 		},
 	},
 };
@@ -96,13 +73,51 @@ const formColProps: Record<
 const generateRandomClientId = () =>
 	'mqtt_post_' + Math.random().toString(16).substr(2, 8);
 
-const ConnectionOptions = ({
-	connId,
-	prevOptions,
-	formRef,
-}: ConnectionOptionsProps) => {
-	const [form] = useForm();
-	const connectionId = connId || Date.now().toString();
+/** Representation of mqtt connection options as stored in db */
+export interface IConnectionOptions {
+	name: string;
+	clientId: string;
+	keepalive: number;
+	connectTimeout: number;
+	reconnectPeriod: number;
+	clean: boolean;
+	protocolVersion: number;
+	protocol: 'mqtt' | 'mqtts' | 'ws' | 'wss';
+	hostname: string;
+	port: number;
+	path: string;
+	username?: string;
+	password?: string;
+	ca?: {};
+	cert?: {};
+	key?: {};
+}
+
+const defaultValues = {
+	name: '',
+	clientId: generateRandomClientId(),
+	keepalive: 60,
+	connectTimeout: 30,
+	reconnectPeriod: 1,
+	clean: true,
+	protocolVersion: 5,
+
+	// see https://test.mosquitto.org/ for more info on connection options on this public broker
+	protocol: 'mqtt',
+	hostname: 'test.mosquitto.org',
+	port: 1883,
+	path: '/', // only useful when the user chooses ws:// or wss:// protocol
+
+	username: '',
+	password: '',
+} as IConnectionOptions;
+
+type ConnectionOptionsProps = {
+	prevOptions?: IConnectionOptions;
+	form: FormInstance;
+};
+const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
+	const [initialFormValues] = useState({ ...defaultValues, ...prevOptions });
 	const [clientId, setClientId] = useState<string>(generateRandomClientId());
 	useEffect(() => {
 		form.setFieldsValue({ clientId: clientId });
@@ -119,12 +134,14 @@ const ConnectionOptions = ({
 		};
 	};
 
-	useEffect(() => {
-		formRef(form);
-	}, [form, formRef]);
-
 	return (
-		<Form form={form} {...formColProps.default} scrollToFirstError>
+		<Form
+			form={form}
+			{...formColProps.default}
+			scrollToFirstError
+			initialValues={initialFormValues}
+			validateMessages={defaultFormValidateMessages}
+		>
 			<Space
 				direction="vertical"
 				size="large"
@@ -134,11 +151,12 @@ const ConnectionOptions = ({
 					type="inner"
 					title="General"
 					extra={<InfoButton link={InfoLinks.general} />}
+					style={{ width: '100%', contain: 'layout' }}
 				>
 					<Form.Item
 						label="Name"
-						name="name"
-						rules={[{ required: true, min: 2 }]}
+						name={['name']}
+						rules={[{ required: true, min: 2, type: 'string' }]}
 					>
 						<Input placeholder="Name for identifying this connection" />
 					</Form.Item>
@@ -146,7 +164,7 @@ const ConnectionOptions = ({
 					<Form.Item
 						label="Client ID"
 						name="clientId"
-						rules={[{ required: true, min: 2 }]}
+						rules={[{ required: true, min: 2, type: 'string' }]}
 					>
 						<Input
 							addonAfter={
@@ -165,7 +183,12 @@ const ConnectionOptions = ({
 
 					<Form.Item label="Host" required>
 						<Input.Group compact>
-							<Form.Item name="protocol" rules={[{ required: true }]} noStyle>
+							<Form.Item
+								label="Protocol"
+								name="protocol"
+								rules={[{ required: true }]}
+								noStyle
+							>
 								<Select
 									style={{ width: '20%' }}
 									placeholder="Protocol"
@@ -190,9 +213,10 @@ const ConnectionOptions = ({
 									);
 									return (
 										<Form.Item
+											label="Hostname"
 											name="hostname"
 											noStyle
-											rules={[{ required: true }]}
+											rules={[{ required: true, type: 'string' }]}
 										>
 											<Input
 												style={{ width: isWebSockets ? '40%' : '60%' }}
@@ -204,9 +228,10 @@ const ConnectionOptions = ({
 							</Form.Item>
 
 							<Form.Item
+								label="Port"
 								name="port"
 								noStyle
-								rules={[{ required: true, max: 65535, min: 0 }]}
+								rules={[{ required: true, max: 65535, min: 0, type: 'number' }]}
 							>
 								<InputNumber
 									style={{ width: '20%' }}
@@ -223,7 +248,12 @@ const ConnectionOptions = ({
 							>
 								{({ getFieldValue }) => {
 									return ['wss', 'ws'].includes(getFieldValue('protocol')) ? (
-										<Form.Item name="path" noStyle rules={[{ required: true }]}>
+										<Form.Item
+											label="Path"
+											name="path"
+											noStyle
+											rules={[{ required: true, type: 'string' }]}
+										>
 											<Input placeholder="Path" style={{ width: '20%' }} />
 										</Form.Item>
 									) : null;
@@ -235,16 +265,20 @@ const ConnectionOptions = ({
 					<Form.Item label="Credentials">
 						<Space direction="horizontal" align="center" size="small">
 							<Form.Item
+								label="Username"
 								name="username"
 								noStyle
 								style={{ ...inlineFormItemStyles }}
+								rules={[{ type: 'string' }]}
 							>
 								<Input placeholder="Username" />
 							</Form.Item>
 							<Form.Item
-								name="Password"
+								label="Password"
+								name="password"
 								noStyle
 								style={{ ...inlineFormItemStyles }}
+								rules={[{ type: 'string' }]}
 							>
 								<Input.Password placeholder="Password" />
 							</Form.Item>
@@ -252,24 +286,25 @@ const ConnectionOptions = ({
 					</Form.Item>
 
 					<Form.Item
-						name="autoReconnect"
-						label="Auto Reconnect"
-						{...formColProps.nested}
-					>
-						<Switch defaultChecked={false} />
-					</Form.Item>
-					<Form.Item
-						name="cleanSession"
+						name="clean"
 						label="Clean Session"
 						{...formColProps.nested}
+						rules={[{ type: 'boolean' }]}
 					>
-						<Switch defaultChecked />
+						<Switch defaultChecked={initialFormValues.clean} />
+					</Form.Item>
+					<Form.Item
+						name="reconnectPeriod"
+						label="Auto Reconnect Period (s)"
+						rules={[{ required: true, min: 0, type: 'number' }]}
+						{...formColProps.nested}
+					>
+						<InputNumber min={0} />
 					</Form.Item>
 					<Form.Item
 						label="Connect Timeout (s)"
 						name="connectTimeout"
-						initialValue={10}
-						rules={[{ required: true }]}
+						rules={[{ required: true, min: 0, type: 'number' }]}
 						{...formColProps.nested}
 					>
 						<InputNumber min={0} />
@@ -277,8 +312,7 @@ const ConnectionOptions = ({
 					<Form.Item
 						label="Keep Alive (s)"
 						name="keepalive"
-						initialValue={30}
-						rules={[{ required: true, min: 0 }]}
+						rules={[{ required: true, min: 0, type: 'number' }]}
 						{...formColProps.nested}
 					>
 						<InputNumber min={0} />
@@ -290,9 +324,10 @@ const ConnectionOptions = ({
 						{...formColProps.nested}
 						rules={[{ required: true }]}
 					>
-						<Radio.Group defaultValue={5} buttonStyle="solid">
-							<Radio.Button value={3}>v3.1.1</Radio.Button>
+						<Radio.Group buttonStyle="solid">
 							<Radio.Button value={5}>{`  v5  `}</Radio.Button>
+							<Radio.Button value={4}>v3.1.1</Radio.Button>
+							<Radio.Button value={3}>{` v3.1 `}</Radio.Button>
 						</Radio.Group>
 					</Form.Item>
 
@@ -315,9 +350,11 @@ const ConnectionOptions = ({
 										style={{ width: '100%' }}
 									>
 										<Form.Item
+											label="Session Expiry Interval"
 											name="sessionExpiryInterval"
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
+											rules={[{ type: 'number', min: 0 }]}
 										>
 											<InputNumber
 												min={0}
@@ -326,10 +363,11 @@ const ConnectionOptions = ({
 											/>
 										</Form.Item>
 										<Form.Item
+											label="Receive Maximum"
 											name="receiveMaximum"
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
-											rules={[{ min: 0 }]}
+											rules={[{ min: 0, type: 'number' }]}
 										>
 											<InputNumber
 												min={0}
@@ -338,10 +376,11 @@ const ConnectionOptions = ({
 											/>
 										</Form.Item>
 										<Form.Item
+											label="Topic Alias Maximum"
 											name="topicAliasMaximum"
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
-											rules={[{ min: 0 }]}
+											rules={[{ min: 0, type: 'number' }]}
 										>
 											<InputNumber
 												min={0}
@@ -395,17 +434,16 @@ const ConnectionOptions = ({
 						}
 					>
 						{({ getFieldValue }) => {
-							console.log(`certSign is ${getFieldValue('certSign')}`);
+							/** Disabled if the user had not selected ssl and chosen selfSigned */
 							const disabled =
 								getFieldValue('ssl_tls') !== true ||
 								getFieldValue('certSign') !== 'selfSigned';
 							return (
 								<>
-									{/* TODO: Specify the file types for the Upload components */}
 									<Form.Item
 										name="caFile"
 										label="CA File"
-										rules={disabled ? undefined : [{ required: true }]}
+										rules={[{ required: disabled ? false : true }]}
 										{...formColProps.nested}
 									>
 										<Upload {...getFileProps('caFile')} disabled={disabled}>
@@ -418,7 +456,7 @@ const ConnectionOptions = ({
 										name="clientCertFile"
 										label="Client Certificate File"
 										{...formColProps.nested}
-										rules={disabled ? undefined : [{ required: true }]}
+										rules={[{ required: disabled ? false : true }]}
 									>
 										<Upload
 											{...getFileProps('clientCertFile')}
@@ -433,7 +471,7 @@ const ConnectionOptions = ({
 										name="clientKeyFile"
 										label="Client Key File"
 										{...formColProps.nested}
-										rules={disabled ? undefined : [{ required: true }]}
+										rules={[{ required: disabled ? false : true }]}
 									>
 										<Upload
 											{...getFileProps('clientKeyFile')}
