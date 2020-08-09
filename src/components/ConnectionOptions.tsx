@@ -60,7 +60,7 @@ const formColProps: Record<
 		labelCol: {
 			xs: { span: 20, offset: 2 },
 			sm: { span: 10, offset: 0 },
-			lg: { span: 6, offset: 0 },
+			lg: { span: 8, offset: 0 },
 		},
 		wrapperCol: {
 			xs: { span: 20, offset: 2 },

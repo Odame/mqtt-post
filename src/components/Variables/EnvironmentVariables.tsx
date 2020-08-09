@@ -35,14 +35,13 @@ const formColProps = {
 	},
 };
 
-type IVar = {
+export type IVar = {
 	name: string;
 	value: string;
-	editable: boolean;
 };
 type EnvironmentVariablesProps = {
 	form: FormInstance;
-	initialNameValuePairs?: Array<{ varName: string; varValue: string }>;
+	initialNameValuePairs?: Array<IVar>;
 };
 const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 	props
@@ -53,15 +52,15 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 			autoComplete="off"
 			{...formColProps.default}
 			initialValues={{
-				keyValuePairs: [
+				nameValuePairs: [
 					...(props.initialNameValuePairs || []),
-					{ varName: '', varValue: '' },
+					{ name: '', value: '' } as IVar,
 				],
 			}}
 			scrollToFirstError
 			className="environment-variables-form"
 		>
-			<Form.List name="keyValuePairs">
+			<Form.List name="nameValuePairs">
 				{(fields, { add, remove }) => {
 					const isSingleItem = fields.length === 1;
 					return (
@@ -76,17 +75,17 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 											<Form.Item noStyle shouldUpdate={true}>
 												{({ getFieldValue }) => {
 													const isRequired = !!(getFieldValue([
-														'keyValuePairs',
+														'nameValuePairs',
 														field.name,
-														'varValue',
+														'value',
 													]) as string)?.trim();
 													return (
 														<Form.Item
 															className="environment-variable-field"
 															{...field}
 															noStyle
-															name={[field.name, 'varName']}
-															fieldKey={[field.fieldKey, 'varName']}
+															name={[field.name, 'name']}
+															fieldKey={[field.fieldKey, 'name']}
 															style={{ display: 'inline-block' }}
 															rules={[
 																{
@@ -104,17 +103,17 @@ const EnvironmentVariables: FunctionComponent<EnvironmentVariablesProps> = (
 											<Form.Item noStyle shouldUpdate={true}>
 												{({ getFieldValue }) => {
 													const isRequired = !!(getFieldValue([
-														'keyValuePairs',
+														'nameValuePairs',
 														field.name,
-														'varName',
+														'name',
 													]) as string)?.trim();
 													return (
 														<Form.Item
 															className="environment-variable-input"
 															{...field}
 															noStyle
-															name={[field.name, 'varValue']}
-															fieldKey={[field.fieldKey, 'varValue']}
+															name={[field.name, 'value']}
+															fieldKey={[field.fieldKey, 'value']}
 															style={{ display: 'inline-block' }}
 															rules={[
 																{
