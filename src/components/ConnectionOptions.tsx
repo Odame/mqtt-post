@@ -512,7 +512,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 								lastWillTopic === undefined || lastWillTopic.trim() === '';
 							return (
 								<>
-									<Form.Item name="lastWillQoS" label="QoS">
+									<Form.Item name={['will', 'qos']} label="QoS">
 										<Radio.Group
 											disabled={disabled}
 											options={[
@@ -523,12 +523,68 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										/>
 									</Form.Item>
 
-									<Form.Item name="lastWillRetain" label="Retain">
+									<Form.Item name={['will', 'retain']} label="Retain">
 										<Switch defaultChecked={false} disabled={disabled} />
 									</Form.Item>
 
-									<Form.Item name="lastWillPayload" label="Payload">
+									<Form.Item name={['will', 'payload']} label="Payload">
 										<Input.TextArea disabled={disabled} />
+									</Form.Item>
+
+									<Form.Item
+										noStyle
+										shouldUpdate={(prevValues, currValues) =>
+											prevValues.protocolVersion !== currValues.protocolVersion
+										}
+									>
+										{({ getFieldValue }) => {
+											const protocolVersion: number | undefined = getFieldValue(
+												'protocolVersion'
+											);
+											return protocolVersion === 5 ? (
+												<Form.Item label="MQTT 5 Options">
+													<Space
+														direction="horizontal"
+														align="center"
+														size="small"
+														style={{ width: '100%' }}
+													>
+														<Form.Item
+															label="Will Delay Interval"
+															name={['will', 'properties', 'willDelayInterval']}
+															noStyle
+															style={{ width: '100%', ...inlineFormItemStyles }}
+															rules={[{ type: 'number', min: 0 }]}
+														>
+															<InputNumber
+																min={0}
+																placeholder="Will Delay Interval"
+																style={{ width: '100%' }}
+																disabled={disabled}
+															/>
+														</Form.Item>
+														<Form.Item
+															label="Message Expiry Interval"
+															name={[
+																'will',
+																'properties',
+																'messageExpiryInterval',
+															]}
+															noStyle
+															style={{ width: '50%', ...inlineFormItemStyles }}
+															rules={[{ min: 0, type: 'number' }]}
+														>
+															<InputNumber
+																min={0}
+																placeholder="Message Expiry Interval"
+																style={{ width: '100%' }}
+																disabled={disabled}
+															/>
+														</Form.Item>
+													</Space>
+												</Form.Item>
+											) : null;
+										}}
 									</Form.Item>
 								</>
 							);
