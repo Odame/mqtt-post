@@ -8,7 +8,7 @@ import WorkSpace from './containers/WorkSpace';
 import NewConnection from './features/newConnection/NewConnection';
 import GeneralSettings from './features/generalSettings/GeneralSettings';
 import About from './features/About';
-import { Spin, Alert, Button, Result } from 'antd';
+import { Spin, Button, Result } from 'antd';
 import { initDatabase } from './db';
 import { quitApp, restartApp } from './utils';
 
@@ -30,7 +30,6 @@ export default function App() {
 
 	return (
 		<div className="App no-highlight">
-			{}
 			{dbStatus === 'initialized' ? (
 				<>
 					<SidePane className="sidepane" />
