@@ -553,7 +553,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 															label="Will Delay Interval"
 															name={['will', 'properties', 'willDelayInterval']}
 															noStyle
-															style={{ width: '100%', ...inlineFormItemStyles }}
+															style={{ width: '50%', ...inlineFormItemStyles }}
 															rules={[{ type: 'number', min: 0 }]}
 														>
 															<InputNumber
