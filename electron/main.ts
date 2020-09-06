@@ -1,13 +1,21 @@
-import { app, BrowserWindow } from 'electron';
+import electron, { app, BrowserWindow } from 'electron';
+import { setupMainHandler } from 'eiphop';
 
 import path from 'path';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
+import ipcActions from './ipcActions';
 
 electronDebug({
 	isEnabled: isDev,
 	showDevTools: false, // don't show the devTools immediately
 	devToolsMode: 'detach',
+});
+
+setupMainHandler(electron, {
+	...ipcActions,
+	quitApp: ipcActions.quitApp(app),
+	restartApp: ipcActions.restartApp(app),
 });
 
 let mainWindow: BrowserWindow | null = null;
