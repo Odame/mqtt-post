@@ -51,17 +51,17 @@ export default function ConnectionsList() {
 						}
 					></Empty>
 				</div>
-			) : (
-				<div className="connections-list">
-					{Object.values(connections).map((conn) => (
-						<MqttConnection
-							{...conn}
-							key={conn.id}
-							isSelected={selectedConnectionId === conn.id}
-						/>
-					))}
-				</div>
-			)}
+			) : // <div className="connections-list">
+			// 	{Object.values(connections).map((conn) => (
+			// 		<MqttConnection
+			// 			{...conn}
+			// 			key={conn.id}
+			// 			isSelected={selectedConnectionId === conn.id}
+			// 		/>
+			// 	))}
+			// </div>
+
+			null}
 		</>
 	);
 }
