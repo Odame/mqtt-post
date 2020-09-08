@@ -4,14 +4,9 @@ import {
 	POSITIVE_INTEGER_TYPE,
 	QOS_TYPE,
 } from '../types';
-import {
-	RxCollection,
-	RxJsonSchema,
-	PrimaryProperty,
-	RxDocument,
-	RxQuery,
-} from 'rxdb';
+import { RxCollection, RxJsonSchema, PrimaryProperty, RxDocument } from 'rxdb';
 import { generate as generateShortId } from 'shortid';
+import { BehaviorSubject } from 'rxjs';
 
 const SCHEMA_VERSION = 0;
 /** MQTT Connection and related info as stored in database */
@@ -66,6 +61,8 @@ type IConnectionDocument = RxDocument<IConnection, IConnectionMethods>;
 interface IConnectionsCollectionMethods {
 	/** Get a connection given it's id */
 	getConnection: (id: string) => Promise<IConnectionDocument | null>;
+	/** Returns an observable which can be used to subscribe to changes to a connection */
+	getConnection$: (id: string) => BehaviorSubject<IConnectionDocument | null>;
 	/** Update a connection's info in the database.
 	 * If the connection does not exist already, it will be created with an auto-generated id
 	 */
@@ -89,12 +86,15 @@ export const connectionDocumentMethods: IConnectionMethods = {
 	},
 };
 export const connectionCollectionMethods: IConnectionsCollectionMethods = {
-	getConnection: async function (this: IConnectionsCollection, id: string) {
-		return this.findOne(id).exec();
+	getConnection: async function (this: IConnectionsCollection, id) {
+		return this.findOne({ selector: { id } }).exec();
+	},
+	getConnection$: function (this: IConnectionsCollection, id) {
+		return this.findOne({ selector: { id } }).$;
 	},
 	upsertConnection: async function (
 		this: IConnectionsCollection,
-		connectionData: IConnection | Omit<IConnection, 'id'>
+		connectionData
 	) {
 		const connection = await this.insert({
 			...connectionData,
