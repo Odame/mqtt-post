@@ -1,8 +1,8 @@
 import { createRxDatabase, RxDatabase, addRxPlugin } from 'rxdb';
 import ConnectionSchema, {
 	IConnectionsCollection,
-	IConnection,
 	connectionCollectionMethods,
+	connectionDocumentMethods,
 } from './schemas/connection';
 import MessageSchema, { IMessagesCollection } from './schemas/message';
 import SavedSubscriptionSchema, {
@@ -35,15 +35,7 @@ export const initDatabase = async () => {
 	await database.collection({
 		name: 'connections',
 		schema: ConnectionSchema,
-		methods: {
-			getVar: function (this: IConnection, key: string) {
-				const keyValuePair = this.variables.find(
-					(variable) => variable.key === key
-				);
-				if (keyValuePair) return keyValuePair.value;
-				return null;
-			},
-		},
+		methods: { ...connectionDocumentMethods },
 		statics: { ...connectionCollectionMethods },
 	});
 	await database.collection({
@@ -75,11 +67,7 @@ export const initDatabase = async () => {
  */
 export const getDatabase = () => {
 	if (!database) {
-		throw Error(
-			'The database instance has not been created yet.\n' +
-				'It will be created now\n' +
-				'Consider initializing database before calling this method'
-		);
+		throw Error('The database instance has not been created yet.\n');
 	}
 	return database!;
 };
