@@ -82,8 +82,8 @@ const schema: RxJsonSchema<IMessage> = {
 		'retain',
 	],
 	indexes: [
-		['connectionId', 'timestamp'],
-		['connectionId', 'topic', 'timestamp'],
+		['connectionId', '-timestamp'],
+		['connectionId', 'topic', '-timestamp'],
 	],
 	properties: {
 		id: {

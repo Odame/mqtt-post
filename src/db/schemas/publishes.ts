@@ -39,8 +39,7 @@ export const savedPublishCollectionMethods: ISavedPublishCollectionMethods = {
 				connectionId,
 			},
 			sort: [{ timestamp: 'desc' }],
-		})
-		.exec();
+		}).exec();
 	},
 	searchSavedPublishes: function (
 		this: ISavedPublishCollection,
@@ -69,8 +68,8 @@ const SavedPublishSchema: RxJsonSchema<ISavedPublish> = {
 	type: 'object',
 	required: ['id', 'qos', 'timestamp', 'topic'],
 	indexes: [
-		['connectionId', 'timestamp'],
-		['connectionId', 'topic', 'timestamp'],
+		['connectionId', '-timestamp'],
+		['connectionId', 'topic', '-timestamp'],
 	],
 	properties: {
 		id: {
