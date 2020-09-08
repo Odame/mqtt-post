@@ -18,10 +18,10 @@ import { FormInstance } from 'antd/lib/form';
 import { ColProps } from 'antd/lib/col';
 import { defaultFormValidateMessages } from '../utils/formValidation';
 
-const { shell } = window.require('electron');
-const openExternalLink = (link: string) => {
-	shell.openExternal(link);
-};
+// const { shell } = window.require('electron');
+// const openExternalLink = (link: string) => {
+// 	shell.openExternal(link);
+// };
 
 const InfoButton = ({ link }: { link: string }) =>
 	// <Button type="link" size="small" onClick={() => openExternalLink(link)}>
