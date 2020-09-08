@@ -4,11 +4,18 @@ import {
 	POSITIVE_INTEGER_TYPE,
 	QOS_TYPE,
 } from '../types';
-import { RxDocument, RxCollection, RxJsonSchema, PrimaryProperty } from 'rxdb';
+import {
+	RxCollection,
+	RxJsonSchema,
+	PrimaryProperty,
+	RxDocument,
+	RxQuery,
+} from 'rxdb';
+import { generate as generateShortId } from 'shortid';
 
 const SCHEMA_VERSION = 0;
 /** MQTT Connection and related info as stored in database */
-interface IConnection {
+export interface IConnection {
 	id: string;
 	/** Supported client connection options that can be stored in the Database */
 	clientOptions: {
@@ -27,9 +34,9 @@ interface IConnection {
 		connectTimeout: number;
 		keepalive: number;
 		properties?: {
-			sessionExpiryInterval: number;
-			receiveMaximum: number;
-			topicAliasMaximum: number;
+			sessionExpiryInterval?: number;
+			receiveMaximum?: number;
+			topicAliasMaximum?: number;
 		};
 		will?: {
 			topic: string;
@@ -42,22 +49,60 @@ interface IConnection {
 			};
 		};
 	};
+	/** Key-value pairs associated with this connection.
+	 * These can be used when making subscriptions or publishes
+	 */
 	variables: Array<{ key: string; value: string }>;
 }
-interface IConnectionDocumentMethods {
-	// TODO: Define a method to get a variable by key
-}
-// export type IConnectionDocument = RxDocument<
-// 	IConnectionDocumentType,
-// 	IConnectionDocumentMethods
-// >;
 
-interface IConnectionsCollectionMethods {}
+/** Instance methods on `IConnection` */
+interface IConnectionMethods {
+	/** Get the value of a variable, given it's key */
+	getVar: (key: string) => string | null;
+}
+type IConnectionDocument = RxDocument<IConnection, IConnectionMethods>;
+
+/** Static methods on `IConnectionsCollection` */
+interface IConnectionsCollectionMethods {
+	/** Get a connection given it's id */
+	getConnection: (id: string) => Promise<IConnectionDocument | null>;
+	/** Update a connection's info in the database.
+	 * If the connection does not exist already, it will be created with an auto-generated id
+	 */
+	upsertConnection: (
+		connectionData: IConnection | Omit<IConnection, 'id'>
+	) => Promise<IConnectionDocument>;
+}
 export type IConnectionsCollection = RxCollection<
 	IConnection,
-	IConnectionDocumentMethods,
+	IConnectionMethods,
 	IConnectionsCollectionMethods
 >;
+
+export const connectionDocumentMethods: IConnectionMethods = {
+	getVar: function (this: IConnection, key: string) {
+		const keyValuePair = this.variables.find(
+			(variable) => variable.key === key
+		);
+		if (keyValuePair) return keyValuePair.value;
+		return null;
+	},
+};
+export const connectionCollectionMethods: IConnectionsCollectionMethods = {
+	getConnection: async function (this: IConnectionsCollection, id: string) {
+		return this.findOne(id).exec();
+	},
+	upsertConnection: async function (
+		this: IConnectionsCollection,
+		connectionData: IConnection | Omit<IConnection, 'id'>
+	) {
+		const connection = await this.insert({
+			...connectionData,
+			id: (connectionData as IConnection).id || generateShortId(),
+		});
+		return connection;
+	},
+};
 
 const schema: RxJsonSchema<IConnection> = {
 	version: SCHEMA_VERSION,

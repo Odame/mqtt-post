@@ -5,12 +5,14 @@ import {
 	POSITIVE_INTEGER_TYPE,
 	INTEGER_TYPE,
 } from '../types';
-import { RxDocument, RxCollection, RxJsonSchema, PrimaryProperty } from 'rxdb';
+import { RxCollection, RxJsonSchema, PrimaryProperty, RxDocument } from 'rxdb';
+import { BehaviorSubject } from 'rxjs';
 
 const SCHEMA_VERSION = 0;
 interface IMessage {
 	id: string;
 	connectionId: string;
+	timestamp: number;
 	direction: 'in' | 'out';
 	payload?: string;
 	topic: string;
@@ -29,31 +31,60 @@ interface IMessage {
 	};
 }
 interface IMessageMethods {}
-// export type IMessageDocument = RxDocument<IMessage, IMessageMethods>;
+type IMessageDocument = RxDocument<IMessage, IMessageMethods>;
 
-interface IMessagesCollectionMethods {}
+interface IMessagesCollectionMethods {
+	getMessagesByConnection$: (
+		connectionId: string
+	) => BehaviorSubject<IMessageDocument[]>;
+	searchMessages$: (
+		connectionId: string,
+		topic: string,
+		options?: { direction: 'in' | 'out'; time: {} }
+	) => BehaviorSubject<IMessageDocument[]>;
+}
+
 export type IMessagesCollection = RxCollection<
 	IMessage,
 	IMessageMethods,
 	IMessagesCollectionMethods
 >;
 
+export const messageCollectionMethods: IMessagesCollectionMethods = {
+	getMessagesByConnection$: function (this: IMessagesCollection, connectionId) {
+		return this.find().where('connectionId').eq(connectionId).sort('-timestamp')
+			.$;
+	},
+	searchMessages$: function (
+		this: IMessagesCollection,
+		connectionId,
+		topic,
+		options
+	) {
+		return this.find({
+			selector: {
+				$and: [{ connectionId }, { $regex: topic }],
+			},
+		}).sort('-timestamp').$;
+	},
+};
+
 const schema: RxJsonSchema<IMessage> = {
 	version: SCHEMA_VERSION,
 	type: 'object',
 	required: [
-		'id',
 		'connectionId',
+		'timestamp',
 		'direction',
 		'topic',
 		'qos',
 		'dup',
 		'retain',
 	],
-	// indexes: [
-	// 	['connectionId', 'topic'],
-	// 	['connectionId', 'direction'],
-	// ],
+	indexes: [
+		['connectionId', 'timestamp'],
+		['connectionId', 'topic', 'timestamp'],
+	],
 	properties: {
 		id: {
 			...STRING_TYPE,
@@ -61,6 +92,7 @@ const schema: RxJsonSchema<IMessage> = {
 		} as PrimaryProperty,
 		// id of the mqtt connection via which this message was sent or received
 		connectionId: STRING_TYPE,
+		timestamp: INTEGER_TYPE,
 		direction: {
 			enum: ['in', 'out'], // received message or sent message, respectively
 		},

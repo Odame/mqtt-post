@@ -1,7 +1,18 @@
 import { createRxDatabase, RxDatabase, addRxPlugin } from 'rxdb';
-import ConnectionSchema, { IConnectionsCollection } from './schemas/connection';
+import ConnectionSchema, {
+	IConnectionsCollection,
+	IConnection,
+	connectionCollectionMethods,
+} from './schemas/connection';
 import MessageSchema, { IMessagesCollection } from './schemas/message';
-import { generate } from 'shortid';
+import SavedSubscriptionSchema, {
+	ISavedSubscriptionCollection,
+	savedSubscriptionCollectionMethods,
+} from './schemas/subscription';
+import SavedPublishSchema, {
+	savedPublishCollectionMethods,
+	ISavedPublishCollection,
+} from './schemas/publishes';
 
 addRxPlugin(require('pouchdb-adapter-indexeddb'));
 
@@ -9,6 +20,8 @@ addRxPlugin(require('pouchdb-adapter-indexeddb'));
 interface IDatabaseCollections {
 	connections: IConnectionsCollection;
 	messages: IMessagesCollection;
+	savedSubscriptions: ISavedSubscriptionCollection;
+	savedPublishes: ISavedPublishCollection;
 }
 let database: RxDatabase<IDatabaseCollections>;
 
@@ -22,37 +35,51 @@ export const initDatabase = async () => {
 	await database.collection({
 		name: 'connections',
 		schema: ConnectionSchema,
+		methods: {
+			getVar: function (this: IConnection, key: string) {
+				const keyValuePair = this.variables.find(
+					(variable) => variable.key === key
+				);
+				if (keyValuePair) return keyValuePair.value;
+				return null;
+			},
+		},
+		statics: { ...connectionCollectionMethods },
 	});
 	await database.collection({
 		name: 'messages',
 		schema: MessageSchema,
+		methods: {},
+		statics: {},
 	});
-
-	// Set the ids of the various documents automatically
-	// 		https://rxdb.info/middleware.html
-	database.collections.connections.preInsert((connection) => {
-		connection.id = generate();
-	}, true);
-	database.collections.messages.preInsert((message) => {
-		message.id = `${message.connectionId}-${generate()}`;
-	}, true);
+	await database.collection({
+		name: 'savedSubscriptions',
+		schema: SavedSubscriptionSchema,
+		methods: {},
+		statics: { ...savedSubscriptionCollectionMethods },
+	});
+	await database.collection({
+		name: 'savedPublishes',
+		schema: SavedPublishSchema,
+		methods: {},
+		statics: { ...savedPublishCollectionMethods },
+	});
 
 	return database;
 };
 
 /** Get the singleton database of this application.
  *
- * If the database has not been initialized already, it will be created.
- * Subsequent calls will just return the already created database
+ * @throws If the database has not been initialized already.
+ * The database can be initialized by calling `initDatabase()`
  */
-export const getDatabase = async () => {
+export const getDatabase = () => {
 	if (!database) {
-		console.warn(
+		throw Error(
 			'The database instance has not been created yet.\n' +
 				'It will be created now\n' +
 				'Consider initializing database before calling this method'
 		);
-		await initDatabase();
 	}
 	return database!;
 };
