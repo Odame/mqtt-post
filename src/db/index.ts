@@ -18,10 +18,10 @@ addRxPlugin(require('pouchdb-adapter-indexeddb'));
 
 /** All the collections supported in the application database */
 interface IDatabaseCollections {
-	Connections: IConnectionsCollection;
-	Messages: IMessagesCollection;
-	SavedSubscriptions: ISavedSubscriptionCollection;
-	SavedPublishes: ISavedPublishCollection;
+	connections: IConnectionsCollection;
+	messages: IMessagesCollection;
+	subscriptions: ISavedSubscriptionCollection;
+	publishes: ISavedPublishCollection;
 }
 let database: RxDatabase<IDatabaseCollections>;
 
@@ -45,13 +45,13 @@ export const initDatabase = async () => {
 		statics: {},
 	});
 	await database.collection({
-		name: 'savedSubscriptions',
+		name: 'subscriptions',
 		schema: SavedSubscriptionSchema,
 		methods: {},
 		statics: { ...savedSubscriptionCollectionMethods },
 	});
 	await database.collection({
-		name: 'savedPublishes',
+		name: 'publishes',
 		schema: SavedPublishSchema,
 		methods: {},
 		statics: { ...savedPublishCollectionMethods },

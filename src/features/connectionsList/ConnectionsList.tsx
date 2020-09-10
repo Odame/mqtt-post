@@ -13,7 +13,7 @@ export default function ConnectionsList() {
 	const [connectionsIds, setConnectionsIds] = useState<Array<string>>([]);
 	useEffect(() => {
 		return getDatabase()
-			.Connections.getConnectionsIds$()
+			.connections.getConnectionsIds$()
 			.subscribe(setConnectionsIds).unsubscribe;
 	}, []);
 
