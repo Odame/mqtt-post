@@ -1,25 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Popover, Empty } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import MqttConnection, { MqttClientRef } from './MqttConnection';
-import { useTypedSelector } from '../../rootReducer';
+import MqttConnection from './MqttConnection';
 import emptySVG from '../../images/empty.svg';
 import routes from '../../constants/routes.json';
 import './ConnectionsList.css';
 import { Link } from 'react-router-dom';
-
-type Props = {
-	mqttClientRef?: MqttClientRef;
-};
+import { getDatabase } from '../../db';
+import { List } from 'antd';
 
 export default function ConnectionsList() {
-	const connections = useTypedSelector((state) => state.connections.byId);
-	const isEmpty = useTypedSelector(
-		(state) => Object.keys(state.connections.byId).length === 0
-	);
-	const selectedConnectionId = useTypedSelector(
-		(state) => state.connections.selected
-	);
+	const [connectionsIds, setConnectionsIds] = useState<Array<string>>([]);
+	useEffect(() => {
+		return getDatabase()
+			.Connections.getConnectionsIds$()
+			.subscribe(setConnectionsIds).unsubscribe;
+	}, []);
 
 	return (
 		<>
@@ -33,12 +29,12 @@ export default function ConnectionsList() {
 				<Popover content="Create New Connection" mouseLeaveDelay={0}>
 					<Link to={routes.newConnection}>
 						<Button type="link" size="large" shape="circle">
-							<PlusOutlined style={{ fontSize: '26px' }} />
+							<PlusOutlined style={{ fontSize: '26px', fontWeight: 700 }} />
 						</Button>
 					</Link>
 				</Popover>
 			</div>
-			{isEmpty ? (
+			{connectionsIds.length === 0 ? (
 				<div className="connections-list empty">
 					<Empty
 						className="no-highlight"
@@ -51,17 +47,17 @@ export default function ConnectionsList() {
 						}
 					></Empty>
 				</div>
-			) : // <div className="connections-list">
-			// 	{Object.values(connections).map((conn) => (
-			// 		<MqttConnection
-			// 			{...conn}
-			// 			key={conn.id}
-			// 			isSelected={selectedConnectionId === conn.id}
-			// 		/>
-			// 	))}
-			// </div>
-
-			null}
+			) : (
+				<List
+					className="connections-list"
+					itemLayout="horizontal"
+					dataSource={connectionsIds}
+					rowKey={(connectionId) => connectionId}
+					renderItem={(connectionId) => (
+						<MqttConnection connectionId={connectionId} />
+					)}
+				/>
+			)}
 		</>
 	);
 }
