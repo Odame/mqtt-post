@@ -114,6 +114,7 @@ const schema: RxJsonSchema<IConnection> = {
 	version: SCHEMA_VERSION,
 	type: 'object',
 	required: ['id', 'name', 'lastModified', 'clientOptions'],
+	indexes: ['lastModified'],
 	properties: {
 		id: {
 			...STRING_TYPE,
