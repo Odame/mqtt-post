@@ -18,10 +18,10 @@ addRxPlugin(require('pouchdb-adapter-indexeddb'));
 
 /** All the collections supported in the application database */
 interface IDatabaseCollections {
-	connections: IConnectionsCollection;
-	messages: IMessagesCollection;
-	savedSubscriptions: ISavedSubscriptionCollection;
-	savedPublishes: ISavedPublishCollection;
+	Connections: IConnectionsCollection;
+	Messages: IMessagesCollection;
+	SavedSubscriptions: ISavedSubscriptionCollection;
+	SavedPublishes: ISavedPublishCollection;
 }
 let database: RxDatabase<IDatabaseCollections>;
 
