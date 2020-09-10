@@ -3,19 +3,22 @@ import {
 	BOOLEAN_TYPE,
 	POSITIVE_INTEGER_TYPE,
 	QOS_TYPE,
+	INTEGER_TYPE,
 } from '../types';
 import { RxCollection, RxJsonSchema, PrimaryProperty, RxDocument } from 'rxdb';
 import { generate as generateShortId } from 'shortid';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 const SCHEMA_VERSION = 0;
 /** MQTT Connection and related info as stored in database */
 export interface IConnection {
 	id: string;
+	name: string;
+	lastModified: number;
+	paused: boolean;
 	/** Supported client connection options that can be stored in the Database */
 	clientOptions: {
-		id: string;
-		name: string;
 		clientId: string;
 		protocol: 'wss' | 'ws' | 'mqtt' | 'mqtts';
 		protocolVersion: 3 | 4 | 5;
@@ -44,31 +47,37 @@ export interface IConnection {
 			};
 		};
 	};
-	/** Key-value pairs associated with this connection.
-	 * These can be used when making subscriptions or publishes
-	 */
-	variables: Array<{ key: string; value: string }>;
 }
 
 /** Instance methods on `IConnection` */
-interface IConnectionMethods {
-	/** Get the value of a variable, given it's key */
-	getVar: (key: string) => string | null;
-}
+interface IConnectionMethods {}
 type IConnectionDocument = RxDocument<IConnection, IConnectionMethods>;
 
 /** Static methods on `IConnectionsCollection` */
 interface IConnectionsCollectionMethods {
+	/** Observable to listen for ids of connections */
+	getConnectionsIds$: (this: IConnectionsCollection) => Observable<string[]>;
 	/** Get a connection given it's id */
-	getConnection: (id: string) => Promise<IConnectionDocument | null>;
+	getConnection: (
+		this: IConnectionsCollection,
+		id: string
+	) => Promise<IConnectionDocument | null>;
 	/** Returns an observable which can be used to subscribe to changes to a connection */
-	getConnection$: (id: string) => BehaviorSubject<IConnectionDocument | null>;
+	getConnection$: (
+		this: IConnectionsCollection,
+		id: string
+	) => BehaviorSubject<IConnectionDocument | null>;
 	/** Update a connection's info in the database.
 	 * If the connection does not exist already, it will be created with an auto-generated id
 	 */
 	upsertConnection: (
+		this: IConnectionsCollection,
 		connectionData: IConnection | Omit<IConnection, 'id'>
 	) => Promise<IConnectionDocument>;
+	deleteConnection: (
+		this: IConnectionsCollection,
+		id: string
+	) => Promise<IConnection | null>;
 }
 export type IConnectionsCollection = RxCollection<
 	IConnection,
@@ -76,43 +85,46 @@ export type IConnectionsCollection = RxCollection<
 	IConnectionsCollectionMethods
 >;
 
-export const connectionDocumentMethods: IConnectionMethods = {
-	getVar: function (this: IConnection, key: string) {
-		const keyValuePair = this.variables.find(
-			(variable) => variable.key === key
-		);
-		if (keyValuePair) return keyValuePair.value;
-		return null;
-	},
-};
+export const connectionDocumentMethods: IConnectionMethods = {};
 export const connectionCollectionMethods: IConnectionsCollectionMethods = {
-	getConnection: async function (this: IConnectionsCollection, id) {
+	getConnectionsIds$: function () {
+		return this.find()
+			.sort('-lastModified')
+			.$.pipe(map((documents) => documents.map((doc) => doc.id)));
+	},
+	getConnection: function (id) {
 		return this.findOne({ selector: { id } }).exec();
 	},
-	getConnection$: function (this: IConnectionsCollection, id) {
+	getConnection$: function (id) {
 		return this.findOne({ selector: { id } }).$;
 	},
-	upsertConnection: async function (
-		this: IConnectionsCollection,
-		connectionData
-	) {
-		const connection = await this.insert({
+	upsertConnection: async function (connectionData) {
+		const connection = await this.upsert({
 			...connectionData,
 			id: (connectionData as IConnection).id || generateShortId(),
 		});
 		return connection;
+	},
+	deleteConnection: function (id) {
+		return this.findOne({ selector: { id } }).remove();
 	},
 };
 
 const schema: RxJsonSchema<IConnection> = {
 	version: SCHEMA_VERSION,
 	type: 'object',
-	required: ['clientOptions', 'variables'],
+	required: ['id', 'name', 'lastModified', 'clientOptions'],
 	properties: {
 		id: {
 			...STRING_TYPE,
 			primary: true,
 		} as PrimaryProperty,
+		name: STRING_TYPE,
+		lastModified: INTEGER_TYPE,
+		paused: {
+			...BOOLEAN_TYPE,
+			default: false,
+		},
 		clientOptions: {
 			type: 'object',
 			required: [
@@ -128,7 +140,6 @@ const schema: RxJsonSchema<IConnection> = {
 				'keepalive',
 			],
 			properties: {
-				name: STRING_TYPE,
 				clientId: STRING_TYPE,
 				protocol: STRING_TYPE,
 				protocolVersion: {
@@ -173,17 +184,17 @@ const schema: RxJsonSchema<IConnection> = {
 				},
 			},
 		},
-		variables: {
-			type: 'array',
-			items: {
-				type: 'object',
-				required: ['key', 'value'],
-				properties: {
-					key: STRING_TYPE,
-					value: STRING_TYPE,
-				},
-			},
-		},
+		// variables: {
+		// 	type: 'array',
+		// 	items: {
+		// 		type: 'object',
+		// 		required: ['key', 'value'],
+		// 		properties: {
+		// 			key: STRING_TYPE,
+		// 			value: STRING_TYPE,
+		// 		},
+		// 	},
+		// },
 	},
 };
 export default schema;
