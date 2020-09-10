@@ -12,9 +12,10 @@ import { List } from 'antd';
 export default function ConnectionsList() {
 	const [connectionsIds, setConnectionsIds] = useState<Array<string>>([]);
 	useEffect(() => {
-		return getDatabase()
+		const rxSubscription = getDatabase()
 			.connections.getConnectionsIds$()
-			.subscribe(setConnectionsIds).unsubscribe;
+			.subscribe(setConnectionsIds);
+		return () => rxSubscription.unsubscribe();
 	}, []);
 
 	return (

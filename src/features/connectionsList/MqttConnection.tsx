@@ -23,8 +23,10 @@ const getConnectionDesc = (connection: IConnection | null): string => {
 const MqttConnection: FunctionComponent<Props> = ({ connectionId: id }) => {
 	const [connection, setConnection] = useState<IConnection | null>(null);
 	useEffect(() => {
-		return getDatabase().connections.getConnection$(id).subscribe(setConnection)
-			.unsubscribe;
+		const rxSubscription = getDatabase()
+			.connections.getConnection$(id)
+			.subscribe(setConnection);
+		return () => rxSubscription.unsubscribe();
 	}, [id]);
 
 	const currSelectedConnectionId = useSelectedConnectionId();
