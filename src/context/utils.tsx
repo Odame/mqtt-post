@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, ComponentType } from 'react';
 
 export function buildContextHook<T>(context: React.Context<T>) {
 	return () => {
@@ -44,4 +44,16 @@ export function buildContextProvider<T>(
 			</setterContext.Provider>
 		);
 	});
+}
+
+export function buildContextProviderHOC<P extends any>(
+	ProviderComponent: ComponentType
+) {
+	return function (WrappedComponent: ComponentType<P | any>) {
+		return (props: P) => (
+			<ProviderComponent>
+				<WrappedComponent {...props} />
+			</ProviderComponent>
+		);
+	};
 }

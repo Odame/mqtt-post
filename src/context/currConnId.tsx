@@ -3,16 +3,21 @@ import {
 	buildContextProvider,
 	createDataContext,
 	createSetterContext,
+	buildContextProviderHOC,
 } from './utils';
 
 // TODO: Remember the currently selected connection when the application is closed
 
 const CurrConnectionIdContext = createDataContext<string>();
 const CurrConnectionIdSetterContext = createSetterContext<string>();
-export const CurrConnectionIdProvider = buildContextProvider<string>(
+const CurrConnectionIdProvider = buildContextProvider<string>(
 	CurrConnectionIdContext,
 	CurrConnectionIdSetterContext,
 	undefined
+);
+
+export const withSelectedConnectionId = buildContextProviderHOC(
+	CurrConnectionIdProvider
 );
 
 /** Hook which returns a function to get the currently selected connection's id  */

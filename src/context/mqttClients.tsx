@@ -12,6 +12,7 @@ import * as _mqtt from 'mqtt';
 import { getDatabase } from '../db';
 import { map } from 'rxjs/operators';
 import { IConnection } from '../db/schemas/connection';
+import { buildContextProviderHOC } from './utils';
 
 // Use the mqtt lib preloaded from the main process (which is a nodejs process)
 const mqtt = (window as any).mqtt as typeof _mqtt;
@@ -21,7 +22,7 @@ const MqttClientsContext = React.createContext<
 >({});
 MqttClientsContext.displayName = 'MqttClientsContext';
 
-export const MqttClientsContextProvider: FunctionComponent = (props) => {
+const MqttClientsContextProvider: FunctionComponent = (props) => {
 	const [mqttClients, setMqttClients] = useState<
 		Record<string, MqttClient | null>
 	>({});
@@ -29,7 +30,8 @@ export const MqttClientsContextProvider: FunctionComponent = (props) => {
 	// Grab the data from the db initially and setup the mqttClients
 	useEffect(() => {
 		const database = getDatabase();
-		database.Connections.find()
+		database.connections
+			.find()
 			.exec()
 			.then((connections) => {
 				const mqttConnections = Object.fromEntries(
@@ -64,23 +66,23 @@ export const MqttClientsContextProvider: FunctionComponent = (props) => {
 	// Listen for newly inserted connections and modify mqttClients
 	useEffect(() => {
 		const rxSubscription = getDatabase()
-			.Connections.insert$.pipe(map((e) => e.documentData as IConnection))
+			.connections.insert$.pipe(map((e) => e.documentData as IConnection))
 			.subscribe(onConnectionModified);
-		return rxSubscription.unsubscribe;
+		return () => rxSubscription.unsubscribe();
 	}, [onConnectionModified]);
 
 	// listen for updated connections and modify mqttClients
 	useEffect(() => {
 		const rxSubscription = getDatabase()
-			.Connections.update$.pipe(map((e) => e.documentData as IConnection))
+			.connections.update$.pipe(map((e) => e.documentData as IConnection))
 			.subscribe(onConnectionModified);
-		return rxSubscription.unsubscribe;
+		return () => rxSubscription.unsubscribe();
 	}, [onConnectionModified]);
 
 	// listen for deleted connections and modify mqttClients
 	useEffect(() => {
 		const rxSubscription = getDatabase()
-			.Connections.remove$.pipe(map((e) => e.documentData as IConnection))
+			.connections.remove$.pipe(map((e) => e.documentData as IConnection))
 			.subscribe((connection) => {
 				const prevClient = mqttClients[connection.id];
 				if (prevClient) prevClient.end(true);
@@ -90,7 +92,7 @@ export const MqttClientsContextProvider: FunctionComponent = (props) => {
 					return clients;
 				});
 			});
-		return rxSubscription.unsubscribe;
+		return () => rxSubscription.unsubscribe();
 	}, [mqttClients]);
 
 	return (
@@ -99,6 +101,9 @@ export const MqttClientsContextProvider: FunctionComponent = (props) => {
 		</MqttClientsContext.Provider>
 	);
 };
+export const withMqttClients = buildContextProviderHOC(
+	MqttClientsContextProvider
+);
 
 export const useMqttClient = (connectionId: string) => {
 	const clients = useContext(MqttClientsContext);
@@ -111,17 +116,17 @@ export const useMqttClient = (connectionId: string) => {
 
 export enum MqttClientState {
 	/** The exact state of the mqtt client cannot be determined currently */
-	unknown,
+	unknown = 'unknown',
 	/** On successful (re)connection, (i.e. connack rc=0) */
-	connected,
+	connected = 'connected',
 	/** After receiving disconnect packet from broker. MQTT 5.0 feature */
-	disconnected,
+	disconnected = 'disconnected',
 	/** When a reconnect starts */
-	reconnecting,
+	reconnecting = 'reconnecting',
 	/** When mqtt.Client goes offline */
-	offline,
+	offline = 'offline',
 	/** When mqtt.Client.end is called */
-	ended,
+	ended = 'ended',
 }
 
 /** Hook to track the state of a connection's related mqtt client */
