@@ -5,18 +5,14 @@ import { HashRouter as Router } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { Provider } from 'react-redux';
-import store from './store';
 
 const electron = (window as any).electron;
 setupFrontendListener(electron);
 
 ReactDOM.render(
-	<Provider store={store}>
-		<Router>
-			<App />
-		</Router>
-	</Provider>,
+	<Router>
+		<App />
+	</Router>,
 	document.getElementById('root')
 );
 

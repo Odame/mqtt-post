@@ -21,7 +21,13 @@ export default function Welcome() {
 				imageStyle={{
 					height: 80,
 				}}
-				description={<span>No Connections Have Been Created Yet</span>}
+				description={
+					<span>
+						No connection has been selected.
+						<br /> <br />
+						Select one from the side-pane OR
+					</span>
+				}
 			>
 				<Link to={routes.newConnection}>
 					<Button type="primary">Create New</Button>

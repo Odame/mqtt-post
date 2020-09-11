@@ -1,14 +1,12 @@
 import React from 'react';
-import { useTypedSelector } from '../rootReducer';
 import { Redirect } from 'react-router';
 import routes from '../constants/routes.json';
+import { useSelectedConnectionId } from '../context/currConnId';
 
 export default function WorkSpace() {
-	const noConnections = useTypedSelector(
-		(state) => Object.keys(state.connections.byId).length === 0
-	);
+	const selectedConnectionId = useSelectedConnectionId();
 
-	return noConnections ? (
+	return selectedConnectionId === null ? (
 		<Redirect to={routes.welcome} />
 	) : (
 		<div>Workspace</div>
