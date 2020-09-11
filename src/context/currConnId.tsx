@@ -8,12 +8,12 @@ import {
 
 // TODO: Remember the currently selected connection when the application is closed
 
-const CurrConnectionIdContext = createDataContext<string>();
-const CurrConnectionIdSetterContext = createSetterContext<string>();
-const CurrConnectionIdProvider = buildContextProvider<string>(
+const CurrConnectionIdContext = createDataContext<string | null>();
+const CurrConnectionIdSetterContext = createSetterContext<string | null>();
+const CurrConnectionIdProvider = buildContextProvider<string | null>(
 	CurrConnectionIdContext,
 	CurrConnectionIdSetterContext,
-	undefined
+	null
 );
 
 export const withSelectedConnectionId = buildContextProviderHOC(
@@ -23,7 +23,7 @@ export const withSelectedConnectionId = buildContextProviderHOC(
 /** Hook which returns a function to get the currently selected connection's id  */
 export const useSelectedConnectionId = () => {
 	const currConnectionId = useContext(CurrConnectionIdContext);
-	return currConnectionId!;
+	return currConnectionId as string | null;
 };
 
 /** Hook which returns a function that sets the currently selected connection's id */
