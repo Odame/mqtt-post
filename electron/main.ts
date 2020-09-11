@@ -1,15 +1,16 @@
-import electron, { app, BrowserWindow } from 'electron';
+import electron, { app, BrowserWindow, screen } from 'electron';
 import { setupMainHandler } from 'eiphop';
 
 import path from 'path';
 import isDev from 'electron-is-dev';
 import electronDebug from 'electron-debug';
 import ipcActions from './ipcActions';
+import { BrowserWindowConstructorOptions } from 'electron/main';
 
 electronDebug({
 	isEnabled: isDev,
-	showDevTools: false, // don't show the devTools immediately
-	devToolsMode: 'detach',
+	showDevTools: true,
+	devToolsMode: 'right',
 });
 
 setupMainHandler(electron, {
@@ -21,15 +22,37 @@ setupMainHandler(electron, {
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+	let devOptions: BrowserWindowConstructorOptions = {};
+	if (isDev) {
+		// in development, place the application on the secondary display
+		const displays = screen.getAllDisplays();
+		let externalDisplay = null;
+		for (let i in displays) {
+			if (displays[i].bounds.x !== 0 || displays[i].bounds.y !== 0) {
+				externalDisplay = displays[i];
+				break;
+			}
+		}
+		if (externalDisplay) {
+			devOptions = {
+				...devOptions,
+				x: externalDisplay.bounds.x,
+				y: externalDisplay.bounds.y,
+				width: externalDisplay.bounds.width,
+				height: externalDisplay.bounds.height,
+			};
+		}
+	}
 	mainWindow = new BrowserWindow({
-		width: 920,
-		height: 712,
+		width: 1024,
+		height: 800,
 		backgroundColor: '#ffffff',
 		webPreferences: {
 			nodeIntegration: true,
 			preload: path.join(__dirname, './preload.js'),
 			devTools: isDev,
 		},
+		...devOptions,
 	});
 	mainWindow.removeMenu();
 	mainWindow.loadURL(
