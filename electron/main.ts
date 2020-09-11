@@ -55,6 +55,7 @@ function createWindow() {
 		...devOptions,
 	});
 	mainWindow.removeMenu();
+	if (isDev) mainWindow.maximize();
 	mainWindow.loadURL(
 		isDev
 			? 'http://localhost:5000'
