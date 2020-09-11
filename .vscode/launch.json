@@ -1,0 +1,32 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Main",
+			"type": "node",
+			"request": "attach",
+			"restart": true,
+			"port": 5001,
+			"outFiles": ["${workspaceFolder}/build/electron/**/*.js"],
+			"localRoot": "${workspaceFolder}/build/electron",
+			"remoteRoot": "${workspaceFolder}/build/electron",
+			"sourceMaps": true,
+			"stopOnEntry": false,
+			"timeout": 60000
+		},
+		{
+			"name": "Renderer",
+			"type": "chrome",
+			"request": "attach",
+			"port": 5002,
+			"url": "http://localhost:5000/*",
+			"webRoot": "${workspaceFolder}"
+		}
+	],
+	"compounds": [
+		{
+			"name": "All",
+			"configurations": ["Main", "Renderer"]
+		}
+	]
+}
