@@ -24,8 +24,11 @@ export default function Welcome() {
 				description={
 					<span>
 						No connection has been selected.
-						<br /> <br />
-						Select one from the side-pane OR
+						<br />
+						Select one from the left-pane
+						<br />
+						<br />
+						OR
 					</span>
 				}
 			>
