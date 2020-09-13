@@ -1,3 +1,8 @@
+:root {
+	--side-pane-width: 300px;
+	--default-padding: 18px;
+}
+
 .App {
 	width: 100vw;
 	height: 100vh;
@@ -14,13 +19,13 @@
 	position: fixed;
 	left: 0;
 	top: 0;
-	width: 300px;
+	width: var(--side-pane-width);
 	overflow: hidden;
 }
 
 .App .pages {
 	height: 100%;
-	width: calc(100% - 300px);
+	width: calc(100% - var(--side-pane-width));
 	right: 0px;
 	top: 0;
 	position: fixed;
