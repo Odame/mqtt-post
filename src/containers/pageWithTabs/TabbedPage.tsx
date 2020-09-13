@@ -1,6 +1,6 @@
 import { Tabs, Button } from 'antd';
 import './TabbedPage.css';
-import { CloseCircleTwoTone } from '@ant-design/icons';
+import { CloseOutlined } from '@ant-design/icons';
 import React, { ReactNode, useState } from 'react';
 import { useHistory } from 'react-router';
 
@@ -24,6 +24,9 @@ export default function TabbedPage<T extends string>(
 
 	return (
 		<div className={`${props.className || ''} page-content tabbed-page`}>
+			{/* We use this to push the content visually down.
+			This is preferred over padding-top, in order to make `scroll-to-element` work */}
+			<div className="tabbed-page-content-pusher" />
 			<Tabs
 				className="tabs-container"
 				activeKey={activeTab}
@@ -33,10 +36,15 @@ export default function TabbedPage<T extends string>(
 					</div>
 				)}
 				tabBarExtraContent={
-					<Button type="text" shape="circle" onClick={onClickClose}>
-						<CloseCircleTwoTone
-							twoToneColor="#FF3C2F"
-							style={{ fontSize: '22px' }}
+					<Button
+						type="text"
+						shape="circle"
+						onClick={onClickClose}
+						className="btn-close"
+					>
+						<CloseOutlined
+							// twoToneColor="#FF3C2F"
+							style={{ fontSize: '18px', color: '#FF3C2F' }}
 						/>
 					</Button>
 				}

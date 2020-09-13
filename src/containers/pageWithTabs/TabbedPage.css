@@ -2,9 +2,13 @@
 	padding-bottom: 120px !important;
 }
 
-.tabbed-page .tabs-container {
-	padding-top: 78px;
+.tabbed-page .tabbed-page-content-pusher {
+	width: 100%;
+	background-color: #fdfdfd;
+	height: 60px;
+	margin-bottom: var(--default-padding);
 }
+
 .tabbed-page .tabs-header-container {
 	position: fixed;
 	top: 0px;
@@ -17,6 +21,9 @@
 }
 .tabbed-page .tabs-header-container .tabs-header {
 	margin: 0px;
+}
+.tabbed-page .tabs-header-container .tabs-header .btn-close:hover {
+	transform: scale(1.15);
 }
 
 .tabbed-page .floating-action-button {

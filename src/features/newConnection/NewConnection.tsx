@@ -20,8 +20,7 @@ export default function NewConnection() {
 				typeof connectionOptionsForm.getFieldsError
 			>;
 			connectionOptionsForm.scrollToField(error[0].name, {
-				skipOverflowHiddenElements: true,
-				block: 'start',
+				block: 'center',
 			});
 			return;
 		}
