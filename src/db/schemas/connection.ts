@@ -36,8 +36,8 @@ export interface IConnection {
 			receiveMaximum?: number;
 			topicAliasMaximum?: number;
 		};
-		will?: {
-			topic: string;
+		will: {
+			topic?: string;
 			payload?: string;
 			qos: 0 | 1 | 2;
 			retain: boolean;
@@ -45,6 +45,14 @@ export interface IConnection {
 				willDelayInterval?: number;
 				messageExpiryInterval?: number;
 			};
+		};
+		sslTls: {
+			useSSL: boolean;
+			certSign?: 'serverSigned' | 'selfSigned';
+			ca?: string;
+			cert?: string;
+			key?: string;
+			rejectUnauthorized?: boolean;
 		};
 	};
 }
@@ -102,6 +110,7 @@ export const connectionCollectionMethods: IConnectionsCollectionMethods = {
 		const connection = await this.upsert({
 			...connectionData,
 			id: (connectionData as IConnection).id || generateShortId(),
+			lastModified: new Date().getTime(),
 		});
 		return connection;
 	},
@@ -129,7 +138,6 @@ const schema: RxJsonSchema<IConnection> = {
 		clientOptions: {
 			type: 'object',
 			required: [
-				'name',
 				'clientId',
 				'protocol',
 				'protocolVersion',
@@ -181,7 +189,20 @@ const schema: RxJsonSchema<IConnection> = {
 							},
 						},
 					},
-					required: ['topic', 'payload', 'qos', 'retain'],
+				},
+				sslTls: {
+					type: 'object',
+					required: ['useSSL'],
+					properties: {
+						useSSL: BOOLEAN_TYPE,
+						certSign: {
+							enum: ['serverSigned', 'selfSigned'],
+						},
+						ca: STRING_TYPE,
+						cert: STRING_TYPE,
+						key: STRING_TYPE,
+						rejectUnauthorized: BOOLEAN_TYPE,
+					},
 				},
 			},
 		},
