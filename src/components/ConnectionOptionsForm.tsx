@@ -89,9 +89,10 @@ const defaultValues = {
 		hostname: 'test.mosquitto.org',
 		port: 1883,
 		path: '/', // only useful when the user chooses ws:// or wss:// protocol
-
-		username: '',
-		password: '',
+		sslTls: {
+			useSSL: false,
+		},
+		will: {},
 	},
 } as Omit<IConnection, 'id'>;
 
@@ -187,12 +188,13 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 							<Form.Item
 								noStyle
 								shouldUpdate={(prevValues, currentValues) =>
-									prevValues.protocol !== currentValues.protocol
+									prevValues.clientOptions.protocol !==
+									currentValues.clientOptions.protocol
 								}
 							>
 								{({ getFieldValue }) => {
 									const isWebSockets = ['wss', 'ws'].includes(
-										getFieldValue('protocol')
+										getFieldValue(['clientOptions', 'protocol'])
 									);
 									return (
 										<Form.Item
@@ -226,11 +228,14 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 							<Form.Item
 								noStyle
 								shouldUpdate={(prevValues, currentValues) =>
-									prevValues.protocol !== currentValues.protocol
+									prevValues.clientOptions.protocol !==
+									currentValues.clientOptions.protocol
 								}
 							>
 								{({ getFieldValue }) => {
-									return ['wss', 'ws'].includes(getFieldValue('protocol')) ? (
+									return ['wss', 'ws'].includes(
+										getFieldValue(['clientOptions', 'protocol'])
+									) ? (
 										<Form.Item
 											label="Path"
 											name={['clientOptions', 'path']}
@@ -317,13 +322,15 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 					<Form.Item
 						noStyle
 						shouldUpdate={(prevValues, currValues) =>
-							prevValues.protocolVersion !== currValues.protocolVersion
+							prevValues.clientOptions.protocolVersion !==
+							currValues.clientOptions.protocolVersion
 						}
 					>
 						{({ getFieldValue }) => {
-							const protocolVersion: number | undefined = getFieldValue(
-								'protocolVersion'
-							);
+							const protocolVersion: number | undefined = getFieldValue([
+								'clientOptions',
+								'protocolVersion',
+							]);
 							return protocolVersion === 5 ? (
 								<Form.Item label="MQTT 5 Options" {...formColProps.nested}>
 									<Space
@@ -334,7 +341,11 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 									>
 										<Form.Item
 											label="Session Expiry Interval"
-											name={['clientOptions', 'sessionExpiryInterval']}
+											name={[
+												'clientOptions',
+												'properties',
+												'sessionExpiryInterval',
+											]}
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
 											rules={[{ type: 'number', min: 0 }]}
@@ -347,7 +358,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Form.Item>
 										<Form.Item
 											label="Receive Maximum"
-											name={['clientOptions', 'receiveMaximum']}
+											name={['clientOptions', 'properties', 'receiveMaximum']}
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
 											rules={[{ min: 0, type: 'number' }]}
@@ -360,7 +371,11 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Form.Item>
 										<Form.Item
 											label="Topic Alias Maximum"
-											name={['clientOptions', 'topicAliasMaximum']}
+											name={[
+												'clientOptions',
+												'properties',
+												'topicAliasMaximum',
+											]}
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
 											rules={[{ min: 0, type: 'number' }]}
@@ -379,20 +394,26 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 				</Card>
 
 				<Card type="inner" title="Certificate" extra={<InfoButton link="" />}>
-					<Form.Item name="ssl_tls" label="SSL/TLS" {...formColProps.nested}>
+					<Form.Item
+						name={['clientOptions', 'sslTls', 'useSSL']}
+						label="SSL/TLS"
+						{...formColProps.nested}
+					>
 						<Switch defaultChecked={false} />
 					</Form.Item>
 					<Form.Item
 						noStyle
 						shouldUpdate={(prevValues, currValues) =>
-							prevValues.ssl_tls !== currValues.ssl_tls
+							prevValues.clientOptions.sslTls?.useSSL !==
+							currValues.clientOptions.sslTls?.useSSL
 						}
 					>
 						{({ getFieldValue }) => {
-							const isSSL = getFieldValue('ssl_tls') === true;
+							const isSSL =
+								getFieldValue(['clientOptions', 'sslTls', 'useSSL']) === true;
 							return (
 								<Form.Item
-									name={['clientOptions', 'certSign']}
+									name={['clientOptions', 'sslTls', 'certSign']}
 									label="Signing"
 									{...formColProps.nested}
 									rules={!isSSL ? undefined : [{ required: true }]}
@@ -412,61 +433,58 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 					<Form.Item
 						noStyle
 						shouldUpdate={(prevValues, currValues) =>
-							prevValues.ssl_tls !== currValues.ssl_tls ||
-							prevValues.certSign !== currValues.certSign
+							prevValues.clientOptions.sslTls?.useSSL !==
+								currValues.clientOptions.sslTls?.useSSL ||
+							prevValues.clientOptions.sslTls?.certSign !==
+								currValues.clientOptions.sslTls?.certSign
 						}
 					>
 						{({ getFieldValue }) => {
 							/** Disabled if the user had not selected ssl and chosen selfSigned */
 							const disabled =
-								getFieldValue('ssl_tls') !== true ||
-								getFieldValue('certSign') !== 'selfSigned';
+								getFieldValue(['clientOptions', 'sslTls', 'useSSL']) !== true ||
+								getFieldValue(['clientOptions', 'sslTls', 'certSign']) !==
+									'selfSigned';
 							return (
 								<>
 									<Form.Item
-										name={['clientOptions', 'caFile']}
+										name={['clientOptions', 'sslTls', 'ca']}
 										label="CA File"
 										rules={[{ required: disabled ? false : true }]}
 										{...formColProps.nested}
 									>
-										<Upload {...getFileProps('caFile')} disabled={disabled}>
+										<Upload {...getFileProps('ca')} disabled={disabled}>
 											<Button disabled={disabled}>
 												<FolderOpenOutlined color="grey" /> Select File
 											</Button>
 										</Upload>
 									</Form.Item>
 									<Form.Item
-										name={['clientOptions', 'clientCertFile']}
+										name={['clientOptions', 'sslTls', 'cert']}
 										label="Client Certificate File"
 										{...formColProps.nested}
 										rules={[{ required: disabled ? false : true }]}
 									>
-										<Upload
-											{...getFileProps('clientCertFile')}
-											disabled={disabled}
-										>
+										<Upload {...getFileProps('cert')} disabled={disabled}>
 											<Button disabled={disabled}>
 												<FolderOpenOutlined color="grey" /> Select File
 											</Button>
 										</Upload>
 									</Form.Item>
 									<Form.Item
-										name={['clientOptions', 'clientKeyFile']}
+										name={['clientOptions', 'sslTls', 'key']}
 										label="Client Key File"
 										{...formColProps.nested}
 										rules={[{ required: disabled ? false : true }]}
 									>
-										<Upload
-											{...getFileProps('clientKeyFile')}
-											disabled={disabled}
-										>
+										<Upload {...getFileProps('key')} disabled={disabled}>
 											<Button disabled={disabled}>
 												<FolderOpenOutlined color="grey" /> Select File
 											</Button>
 										</Upload>
 									</Form.Item>
 									<Form.Item
-										name={['clientOptions', 'strictValidateCert']}
+										name={['clientOptions', 'sslTls', 'rejectUnauthorized']}
 										label="Strict Validate Cert?"
 										{...formColProps.nested}
 									>
@@ -479,25 +497,33 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 				</Card>
 
 				<Card title="Last Will" type="inner">
-					<Form.Item name={['clientOptions', 'lastWillTopic']} label="Topic">
+					<Form.Item name={['clientOptions', 'will', 'topic']} label="Topic">
 						<Input placeholder="eg: nodes/014/offline" />
 					</Form.Item>
 
 					<Form.Item
 						noStyle
 						shouldUpdate={(prevValues, currValues) =>
-							prevValues.lastWillTopic !== currValues.lastWillTopic
+							prevValues.clientOptions.will?.topic !==
+							currValues.clientOptions.will?.topic
 						}
 					>
 						{({ getFieldValue }) => {
-							const lastWillTopic = getFieldValue('lastWillTopic') as string;
-							const disabled =
-								lastWillTopic === undefined || lastWillTopic.trim() === '';
+							const lastWillTopic = getFieldValue([
+								'clientOptions',
+								'will',
+								'topic',
+							]) as string;
+							const disabled = !lastWillTopic || lastWillTopic.trim() === '';
 							return (
 								<>
-									<Form.Item name={['will', 'qos']} label="QoS">
+									<Form.Item
+										name={['clientOptions', 'will', 'qos']}
+										label="QoS"
+									>
 										<Radio.Group
 											disabled={disabled}
+											defaultValue={0}
 											options={[
 												{ value: 0, label: 0 },
 												{ value: 1, label: 1 },
@@ -506,18 +532,25 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										/>
 									</Form.Item>
 
-									<Form.Item name={['will', 'retain']} label="Retain">
+									<Form.Item
+										name={['clientOptions', 'will', 'retain']}
+										label="Retain"
+									>
 										<Switch defaultChecked={false} disabled={disabled} />
 									</Form.Item>
 
-									<Form.Item name={['will', 'payload']} label="Payload">
+									<Form.Item
+										name={['clientOptions', 'will', 'payload']}
+										label="Payload"
+									>
 										<Input.TextArea disabled={disabled} />
 									</Form.Item>
 
 									<Form.Item
 										noStyle
 										shouldUpdate={(prevValues, currValues) =>
-											prevValues.protocolVersion !== currValues.protocolVersion
+											prevValues.clientOptions.protocolVersion !==
+											currValues.clientOptions.protocolVersion
 										}
 									>
 										{({ getFieldValue }) => {
@@ -534,7 +567,12 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 													>
 														<Form.Item
 															label="Will Delay Interval"
-															name={['will', 'properties', 'willDelayInterval']}
+															name={[
+																'clientOptions',
+																'will',
+																'properties',
+																'willDelayInterval',
+															]}
 															noStyle
 															style={{ width: '50%', ...inlineFormItemStyles }}
 															rules={[{ type: 'number', min: 0 }]}
@@ -549,6 +587,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 														<Form.Item
 															label="Message Expiry Interval"
 															name={[
+																'clientOptions',
 																'will',
 																'properties',
 																'messageExpiryInterval',
