@@ -1,0 +1,37 @@
+.tabbed-page {
+	padding-bottom: 120px !important;
+}
+
+.tabbed-page .tabs-container {
+	padding-top: 78px;
+}
+.tabbed-page .tabs-header-container {
+	position: fixed;
+	top: 0px;
+	left: var(--side-pane-width);
+	right: 0;
+	z-index: 1;
+	background-color: #fdfdfd;
+	padding-top: calc(var(--default-padding) - 3px);
+	margin: 0px var(--default-padding);
+}
+.tabbed-page .tabs-header-container .tabs-header {
+	margin: 0px;
+}
+
+.tabbed-page .floating-action-button {
+	position: fixed;
+	bottom: 40px;
+	right: 50px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	width: 60px;
+	height: 60px;
+	background-color: darkslategray;
+}
+
+.tabbed-page .floating-action-button > span.anticon {
+	font-size: 24px;
+}
+.tabbed-page .floating-action-button:hover {
+	transform: scale(1.15);
+}
