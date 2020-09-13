@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import {
 	buildContextProvider,
 	createDataContext,
@@ -23,7 +23,11 @@ export const withSelectedConnectionId = buildContextProviderHOC(
 /** Hook which returns a function to get the currently selected connection's id  */
 export const useSelectedConnectionId = () => {
 	const currConnectionId = useContext(CurrConnectionIdContext);
-	return currConnectionId as string | null;
+	const memoizedCurrConnectionId = useMemo(
+		() => currConnectionId as string | null,
+		[currConnectionId]
+	);
+	return memoizedCurrConnectionId;
 };
 
 /** Hook which returns a function that sets the currently selected connection's id */
