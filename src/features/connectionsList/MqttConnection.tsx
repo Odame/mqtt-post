@@ -41,6 +41,7 @@ const MqttConnection: FunctionComponent<Props> = ({ connectionId: id }) => {
 			onClick={() => setSelectedConnectionId(id)}
 		>
 			<List.Item.Meta
+				className="connections-list-item-meta"
 				avatar={
 					<div
 						className={`connection-state-indicator ${clientState} ${
