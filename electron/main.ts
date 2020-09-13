@@ -67,16 +67,8 @@ function createWindow() {
 		// eslint-disable-next-line global-require
 		const electronDevtoolsInstaller = require('electron-devtools-installer');
 		const installDevtoolsExtension = electronDevtoolsInstaller.default;
-		const {
-			REDUX_DEVTOOLS,
-			REACT_DEVELOPER_TOOLS,
-			REACT_PERF,
-		} = electronDevtoolsInstaller;
-		installDevtoolsExtension([
-			REDUX_DEVTOOLS,
-			REACT_DEVELOPER_TOOLS,
-			REACT_PERF,
-		])
+		const { REACT_DEVELOPER_TOOLS, REACT_PERF } = electronDevtoolsInstaller;
+		installDevtoolsExtension([REACT_DEVELOPER_TOOLS, REACT_PERF])
 			.then(() => console.log('Devtools extensions installed successfully'))
 			.catch((err: Error) =>
 				console.error('Error installing devtools extensions\n', err)
