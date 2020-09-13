@@ -1,5 +1,5 @@
 import React from 'react';
-import ConnectionOptions from '../../components/ConnectionOptions';
+import ConnectionOptions from '../../components/ConnectionOptionsForm';
 import { Button } from 'antd';
 import './NewConnection.css';
 import { SaveOutlined } from '@ant-design/icons';
