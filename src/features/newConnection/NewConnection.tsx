@@ -7,10 +7,15 @@ import { useForm } from 'antd/lib/form/Form';
 import { getDatabase } from '../../db';
 import { IConnection } from '../../db/schemas/connection';
 import TabbedPage from '../../containers/pageWithTabs/TabbedPage';
+import { useCurrConnectionIdSetter } from '../../context/currConnId';
+import { useHistory } from 'react-router';
+import routes from '../../constants/routes.json';
 
 export default function NewConnection() {
 	const [connectionOptionsForm] = useForm();
 
+	const setCurrSelectedConnectionId = useCurrConnectionIdSetter();
+	const history = useHistory();
 	const onClickSave = async () => {
 		let connectionOptions: Omit<IConnection, 'id'>;
 		try {
@@ -24,7 +29,12 @@ export default function NewConnection() {
 			});
 			return;
 		}
-		getDatabase().connections.upsertConnection(connectionOptions);
+		getDatabase()
+			.connections.upsertConnection(connectionOptions)
+			.then((conn) => {
+				setCurrSelectedConnectionId(conn.id);
+				history.replace(routes.workspace);
+			});
 	};
 
 	return (
