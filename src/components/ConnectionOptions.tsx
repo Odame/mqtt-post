@@ -17,6 +17,7 @@ import { FolderOpenOutlined, SyncOutlined } from '@ant-design/icons';
 import { FormInstance } from 'antd/lib/form';
 import { ColProps } from 'antd/lib/col';
 import { defaultFormValidateMessages } from '../utils/formValidation';
+import { IConnection } from '../db/schemas/connection';
 
 // const { shell } = window.require('electron');
 // const openExternalLink = (link: string) => {
@@ -73,47 +74,29 @@ const formColProps: Record<
 const generateRandomClientId = () =>
 	'mqtt_post_' + Math.random().toString(16).substr(2, 8);
 
-/** Representation of mqtt connection options as stored in db */
-export interface IConnectionOptions {
-	name: string;
-	clientId: string;
-	keepalive: number;
-	connectTimeout: number;
-	reconnectPeriod: number;
-	clean: boolean;
-	protocolVersion: number;
-	protocol: 'mqtt' | 'mqtts' | 'ws' | 'wss';
-	hostname: string;
-	port: number;
-	path: string;
-	username?: string;
-	password?: string;
-	ca?: {};
-	cert?: {};
-	key?: {};
-}
-
 const defaultValues = {
 	name: '',
-	clientId: generateRandomClientId(),
-	keepalive: 60,
-	connectTimeout: 30,
-	reconnectPeriod: 1,
-	clean: true,
-	protocolVersion: 5,
+	clientOptions: {
+		clientId: generateRandomClientId(),
+		keepalive: 60,
+		connectTimeout: 30,
+		reconnectPeriod: 1,
+		clean: true,
+		protocolVersion: 5,
 
-	// see https://test.mosquitto.org/ for more info on connection options on this public broker
-	protocol: 'mqtt',
-	hostname: 'test.mosquitto.org',
-	port: 1883,
-	path: '/', // only useful when the user chooses ws:// or wss:// protocol
+		// see https://test.mosquitto.org/ for more info on connection options on this public broker
+		protocol: 'mqtt',
+		hostname: 'test.mosquitto.org',
+		port: 1883,
+		path: '/', // only useful when the user chooses ws:// or wss:// protocol
 
-	username: '',
-	password: '',
-} as IConnectionOptions;
+		username: '',
+		password: '',
+	},
+} as Omit<IConnection, 'id'>;
 
 type ConnectionOptionsProps = {
-	prevOptions?: IConnectionOptions;
+	prevOptions?: Omit<IConnection, 'id'>;
 	form: FormInstance;
 };
 const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
@@ -163,7 +146,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 
 					<Form.Item
 						label="Client ID"
-						name="clientId"
+						name={['clientOptions', 'clientId']}
 						rules={[{ required: true, min: 2, type: 'string' }]}
 					>
 						<Input
@@ -185,7 +168,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 						<Input.Group compact>
 							<Form.Item
 								label="Protocol"
-								name="protocol"
+								name={['clientOptions', 'protocol']}
 								rules={[{ required: true }]}
 								noStyle
 							>
@@ -214,7 +197,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 									return (
 										<Form.Item
 											label="Hostname"
-											name="hostname"
+											name={['clientOptions', 'hostname']}
 											noStyle
 											rules={[{ required: true, type: 'string' }]}
 										>
@@ -229,7 +212,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 
 							<Form.Item
 								label="Port"
-								name="port"
+								name={['clientOptions', 'port']}
 								noStyle
 								rules={[{ required: true, max: 65535, min: 0, type: 'number' }]}
 							>
@@ -250,7 +233,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 									return ['wss', 'ws'].includes(getFieldValue('protocol')) ? (
 										<Form.Item
 											label="Path"
-											name="path"
+											name={['clientOptions', 'path']}
 											noStyle
 											rules={[{ required: true, type: 'string' }]}
 										>
@@ -266,7 +249,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 						<Space direction="horizontal" align="center" size="small">
 							<Form.Item
 								label="Username"
-								name="username"
+								name={['clientOptions', 'username']}
 								noStyle
 								style={{ ...inlineFormItemStyles }}
 								rules={[{ type: 'string' }]}
@@ -275,7 +258,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 							</Form.Item>
 							<Form.Item
 								label="Password"
-								name="password"
+								name={['clientOptions', 'password']}
 								noStyle
 								style={{ ...inlineFormItemStyles }}
 								rules={[{ type: 'string' }]}
@@ -286,15 +269,15 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 					</Form.Item>
 
 					<Form.Item
-						name="clean"
+						name={['clientOptions', 'clean']}
 						label="Clean Session"
 						{...formColProps.nested}
 						rules={[{ type: 'boolean' }]}
 					>
-						<Switch defaultChecked={initialFormValues.clean} />
+						<Switch defaultChecked={initialFormValues.clientOptions.clean} />
 					</Form.Item>
 					<Form.Item
-						name="reconnectPeriod"
+						name={['clientOptions', 'reconnectPeriod']}
 						label="Auto Reconnect Period (s)"
 						rules={[{ required: true, min: 0, type: 'number' }]}
 						{...formColProps.nested}
@@ -303,7 +286,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 					</Form.Item>
 					<Form.Item
 						label="Connect Timeout (s)"
-						name="connectTimeout"
+						name={['clientOptions', 'connectTimeout']}
 						rules={[{ required: true, min: 0, type: 'number' }]}
 						{...formColProps.nested}
 					>
@@ -311,7 +294,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 					</Form.Item>
 					<Form.Item
 						label="Keep Alive (s)"
-						name="keepalive"
+						name={['clientOptions', 'keepalive']}
 						rules={[{ required: true, min: 0, type: 'number' }]}
 						{...formColProps.nested}
 					>
@@ -319,7 +302,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 					</Form.Item>
 
 					<Form.Item
-						name="protocolVersion"
+						name={['clientOptions', 'protocolVersion']}
 						label="MQTT Version"
 						{...formColProps.nested}
 						rules={[{ required: true }]}
@@ -351,7 +334,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 									>
 										<Form.Item
 											label="Session Expiry Interval"
-											name="sessionExpiryInterval"
+											name={['clientOptions', 'sessionExpiryInterval']}
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
 											rules={[{ type: 'number', min: 0 }]}
@@ -364,7 +347,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Form.Item>
 										<Form.Item
 											label="Receive Maximum"
-											name="receiveMaximum"
+											name={['clientOptions', 'receiveMaximum']}
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
 											rules={[{ min: 0, type: 'number' }]}
@@ -377,7 +360,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Form.Item>
 										<Form.Item
 											label="Topic Alias Maximum"
-											name="topicAliasMaximum"
+											name={['clientOptions', 'topicAliasMaximum']}
 											noStyle
 											style={{ width: '30%', ...inlineFormItemStyles }}
 											rules={[{ min: 0, type: 'number' }]}
@@ -409,7 +392,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 							const isSSL = getFieldValue('ssl_tls') === true;
 							return (
 								<Form.Item
-									name="certSign"
+									name={['clientOptions', 'certSign']}
 									label="Signing"
 									{...formColProps.nested}
 									rules={!isSSL ? undefined : [{ required: true }]}
@@ -441,7 +424,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 							return (
 								<>
 									<Form.Item
-										name="caFile"
+										name={['clientOptions', 'caFile']}
 										label="CA File"
 										rules={[{ required: disabled ? false : true }]}
 										{...formColProps.nested}
@@ -453,7 +436,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Upload>
 									</Form.Item>
 									<Form.Item
-										name="clientCertFile"
+										name={['clientOptions', 'clientCertFile']}
 										label="Client Certificate File"
 										{...formColProps.nested}
 										rules={[{ required: disabled ? false : true }]}
@@ -468,7 +451,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Upload>
 									</Form.Item>
 									<Form.Item
-										name="clientKeyFile"
+										name={['clientOptions', 'clientKeyFile']}
 										label="Client Key File"
 										{...formColProps.nested}
 										rules={[{ required: disabled ? false : true }]}
@@ -483,7 +466,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 										</Upload>
 									</Form.Item>
 									<Form.Item
-										name="strictValidateCert"
+										name={['clientOptions', 'strictValidateCert']}
 										label="Strict Validate Cert?"
 										{...formColProps.nested}
 									>
@@ -496,7 +479,7 @@ const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
 				</Card>
 
 				<Card title="Last Will" type="inner">
-					<Form.Item name="lastWillTopic" label="Topic">
+					<Form.Item name={['clientOptions', 'lastWillTopic']} label="Topic">
 						<Input placeholder="eg: nodes/014/offline" />
 					</Form.Item>
 
