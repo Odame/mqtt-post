@@ -14,7 +14,8 @@ import SavedPublishSchema, {
 	ISavedPublishCollection,
 } from './schemas/publishes';
 
-addRxPlugin(require('pouchdb-adapter-indexeddb'));
+// addRxPlugin(require('pouchdb-adapter-indexeddb'));
+addRxPlugin(require('pouchdb-adapter-memory'));
 
 /** All the collections supported in the application database */
 interface IDatabaseCollections {
@@ -29,7 +30,7 @@ export const initDatabase = async () => {
 	database = await createRxDatabase<IDatabaseCollections>({
 		name: 'mqtt_post',
 		multiInstance: false,
-		adapter: 'indexeddb',
+		adapter: 'memory',
 	});
 	// create the collections in the database
 	await database.collection({
