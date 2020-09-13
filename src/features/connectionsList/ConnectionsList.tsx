@@ -7,7 +7,8 @@ import routes from '../../constants/routes.json';
 import './ConnectionsList.css';
 import { Link } from 'react-router-dom';
 import { getDatabase } from '../../db';
-import { List } from 'antd';
+import { List, Typography } from 'antd';
+const { Title } = Typography;
 
 export default function ConnectionsList() {
 	const [connectionsIds, setConnectionsIds] = useState<Array<string>>([]);
@@ -21,12 +22,9 @@ export default function ConnectionsList() {
 	return (
 		<>
 			<div className="connections-list-header">
-				<span
-					style={{ fontSize: '20px', fontWeight: 600, color: 'black' }}
-					className="no-highlight"
-				>
+				<Title level={3} className="no-highlight title">
 					Connections
-				</span>
+				</Title>
 				<Popover content="Create New Connection" mouseLeaveDelay={0}>
 					<Link to={routes.newConnection}>
 						<Button type="link" size="large" shape="circle">
