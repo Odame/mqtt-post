@@ -22,6 +22,55 @@ const MqttClientsContext = React.createContext<
 >({});
 MqttClientsContext.displayName = 'MqttClientsContext';
 
+type IAny =
+	| null
+	| string
+	| boolean
+	| number
+	| IAny[]
+	| { [key: string]: IAny | undefined };
+const removeUndefinedFields = (data: IAny): IAny => {
+	if (typeof data === 'object') {
+		if (Array.isArray(data)) {
+			return data.map((item) => removeUndefinedFields(item));
+		} else if (data === null) {
+			return data;
+		} else {
+			return Object.fromEntries(
+				Object.entries(data)
+					// discard entries where the value is undefined
+					.filter(([key, value]) => value !== undefined)
+					.map(([key, value]) => [key, removeUndefinedFields(value as IAny)])
+			);
+		}
+	} else return data;
+};
+
+/** Convert the data grabbed from the database into
+ * a form that can be used for connecting to an mqtt broker */
+const fromIConnectionToIClientOptions = (
+	connection: IConnection
+): IClientOptions => {
+	const clientOptions = {
+		...connection.clientOptions,
+		reconnectPeriod: connection.clientOptions.reconnectPeriod * 1000,
+		connectTimeout: connection.clientOptions.connectTimeout * 1000,
+		protocolId:
+			connection.clientOptions.protocolVersion === 3 ? 'MQIsdp' : 'MQTT',
+		path: ['ws', 'wss'].includes(connection.clientOptions.protocol)
+			? connection.clientOptions.path
+			: undefined,
+		will: undefined,
+		sslTls: undefined,
+	};
+	if (!['ws', 'wss'].includes(connection.clientOptions.protocol))
+		delete clientOptions.path;
+	delete clientOptions.will;
+	delete clientOptions.sslTls;
+
+	const sanitizedClientOptions = removeUndefinedFields(clientOptions);
+	return sanitizedClientOptions as IClientOptions;
+};
 const MqttClientsContextProvider: FunctionComponent = (props) => {
 	const [mqttClients, setMqttClients] = useState<
 		Record<string, MqttClient | null>
@@ -39,7 +88,7 @@ const MqttClientsContextProvider: FunctionComponent = (props) => {
 						conn.id,
 						conn.paused
 							? null
-							: mqtt.connect(conn.clientOptions as IClientOptions),
+							: mqtt.connect(fromIConnectionToIClientOptions(conn)),
 					])
 				);
 				setMqttClients(mqttConnections);
@@ -51,12 +100,15 @@ const MqttClientsContextProvider: FunctionComponent = (props) => {
 			const prevClient = mqttClients[connection.id];
 			if (prevClient) prevClient.end(true);
 
+			const newClient = connection.paused
+				? null
+				: mqtt.connect(fromIConnectionToIClientOptions(connection));
+			(window as any).clients = (window as any).clients || {};
+			(window as any).clients[connection.id] = newClient;
 			setMqttClients((clients) => {
 				return {
 					...clients,
-					[connection.id]: connection.paused
-						? null
-						: mqtt.connect(connection.clientOptions),
+					[connection.id]: newClient,
 				};
 			});
 		},
