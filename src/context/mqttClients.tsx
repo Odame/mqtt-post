@@ -125,18 +125,29 @@ export enum MqttClientState {
 	reconnecting = 'reconnecting',
 	/** When mqtt.Client goes offline */
 	offline = 'offline',
+	closed = 'closed',
 	/** When mqtt.Client.end is called */
 	ended = 'ended',
 }
 
+const getClientInitialState = (client: MqttClient | null | undefined) => {
+	return client?.connected
+		? MqttClientState.connected
+		: client?.reconnecting
+		? MqttClientState.reconnecting
+		: client?.disconnected || client?.disconnecting
+		? MqttClientState.disconnected
+		: MqttClientState.unknown;
+};
 /** Hook to track the state of a connection's related mqtt client */
 export const useMqttClientState = (connectionId: string) => {
+	const client = useMqttClient(connectionId);
+
 	const [clientState, setClientState] = useState<MqttClientState>(
-		MqttClientState.unknown
+		getClientInitialState(client)
 	);
 	const [clientError, setClientError] = useState<Error | null>(null);
 
-	const client = useMqttClient(connectionId);
 	useEffect(() => {
 		if (!client) return;
 
@@ -147,6 +158,7 @@ export const useMqttClientState = (connectionId: string) => {
 		};
 		const onDisconnect = () => setClientState(MqttClientState.disconnected);
 		const onOffline = () => setClientState(MqttClientState.offline);
+		const onClose = () => setClientState(MqttClientState.closed);
 		const onReconnect = () => setClientState(MqttClientState.reconnecting);
 		const onEnd = () => {
 			setClientState(MqttClientState.ended);
@@ -159,18 +171,38 @@ export const useMqttClientState = (connectionId: string) => {
 			.addListener('disconnect', onDisconnect)
 			.addListener('offline', onOffline)
 			.addListener('reconnect', onReconnect)
+			.addListener('close', onClose)
 			.addListener('end', onEnd)
 			.addListener('error', setClientError);
+		console.log('client.listeners.registered');
 
 		return () => {
 			client
 				.removeListener('connect', onConnect)
 				.removeListener('disconnect', onDisconnect)
 				.removeListener('offline', onOffline)
+				.removeListener('reconnect', onReconnect)
+				.removeListener('close', onClose)
 				.removeListener('end', onEnd)
 				.removeListener('error', setClientError);
+			console.log('client.listeners.unregistered');
 		};
 	}, [client]);
+
+	useEffect(() => {
+		console.log(
+			`connection.client.${clientState} -> ${connectionId}`,
+			client?.options,
+			clientError
+		);
+	}, [client, clientError, clientState, connectionId]);
+
+	// In case we missed the event fired from the client, attempt to set the state
+	const setInitialState = useCallback(() => {
+		const initialState = getClientInitialState(client);
+		setClientState(initialState);
+	}, [client]);
+	useEffect(setInitialState, []);
 
 	return { clientState, clientError };
 };
