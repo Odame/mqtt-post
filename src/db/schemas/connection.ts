@@ -4,6 +4,7 @@ import {
 	POSITIVE_INTEGER_TYPE,
 	QOS_TYPE,
 	INTEGER_TYPE,
+	NULLABLE_STRING_TYPE,
 } from '../types';
 import { RxCollection, RxJsonSchema, PrimaryProperty, RxDocument } from 'rxdb';
 import { generate as generateShortId } from 'shortid';
@@ -25,8 +26,8 @@ export interface IConnection {
 		hostname: string;
 		port: number;
 		path?: string;
-		username?: string;
-		password?: string;
+		username: string | null;
+		password: string | null;
 		clean: boolean;
 		reconnectPeriod: number;
 		connectTimeout: number;
@@ -160,8 +161,8 @@ const schema: RxJsonSchema<IConnection> = {
 					maximum: 65535,
 				},
 				path: STRING_TYPE,
-				username: STRING_TYPE,
-				password: STRING_TYPE,
+				username: NULLABLE_STRING_TYPE,
+				password: NULLABLE_STRING_TYPE,
 				clean: BOOLEAN_TYPE,
 				reconnectPeriod: POSITIVE_INTEGER_TYPE,
 				connectTimeout: POSITIVE_INTEGER_TYPE,

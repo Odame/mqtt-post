@@ -4,8 +4,14 @@ export enum Types {
 	object = 'object',
 }
 
+export const NULL_TYPE = {
+	type: 'null',
+};
 export const STRING_TYPE = {
 	type: 'string',
+};
+export const NULLABLE_STRING_TYPE = {
+	type: ['string', 'null'],
 };
 export const BOOLEAN_TYPE = {
 	type: 'boolean',
