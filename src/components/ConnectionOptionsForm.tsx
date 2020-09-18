@@ -74,34 +74,41 @@ const formColProps: Record<
 const generateRandomClientId = () =>
 	'mqtt_post_' + Math.random().toString(16).substr(2, 8);
 
-const defaultValues = {
-	name: '',
-	clientOptions: {
-		clientId: generateRandomClientId(),
-		keepalive: 60,
-		connectTimeout: 30,
-		reconnectPeriod: 1,
-		clean: true,
-		protocolVersion: 5,
+const defaultValues = () =>
+	({
+		name: 'Example One',
+		clientOptions: {
+			clientId: generateRandomClientId(),
+			keepalive: 60,
+			connectTimeout: 30,
+			reconnectPeriod: 1,
+			clean: true,
+			protocolVersion: 5,
 
-		// see https://test.mosquitto.org/ for more info on connection options on this public broker
-		protocol: 'mqtt',
-		hostname: 'test.mosquitto.org',
-		port: 1883,
-		path: '/', // only useful when the user chooses ws:// or wss:// protocol
-		sslTls: {
-			useSSL: false,
+			// see https://test.mosquitto.org/ for more info on connection options on this public broker
+			protocol: 'mqtt',
+			hostname: '127.0.0.1',
+			port: 1883,
+			path: '/', // only useful when the user chooses ws:// or wss:// protocol
+
+			username: null,
+			password: null,
+			sslTls: {
+				useSSL: false,
+			},
+			will: {},
 		},
-		will: {},
-	},
-} as Omit<IConnection, 'id'>;
+	} as Omit<IConnection, 'id'>);
 
 type ConnectionOptionsProps = {
 	prevOptions?: Omit<IConnection, 'id'>;
 	form: FormInstance;
 };
 const ConnectionOptions = ({ prevOptions, form }: ConnectionOptionsProps) => {
-	const [initialFormValues] = useState({ ...defaultValues, ...prevOptions });
+	const [initialFormValues] = useState({
+		...defaultValues(),
+		...prevOptions,
+	});
 	const [clientId, setClientId] = useState<string>(generateRandomClientId());
 	useEffect(() => {
 		form.setFieldsValue({ clientId: clientId });
