@@ -42,8 +42,8 @@
 	background-color: #e7f0fe;
 }
 .connections-list-item .connection-state-indicator {
-	width: 15px;
-	height: 15px;
+	width: 12px;
+	height: 12px;
 	border-radius: 50%;
 }
 .connections-list-item .connection-state-indicator.unknown,
@@ -59,7 +59,8 @@
 .connections-list-item .connection-state-indicator.disconnected {
 	background-color: #ff9500;
 }
-.connections-list-item .connection-state-indicator.offline {
+.connections-list-item .connection-state-indicator.offline,
+.connections-list-item .connection-state-indicator.notConnected {
 	background-color: #ff3c2f;
 }
 .connections-list-item .connection-state-indicator.error {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import { IConnection } from '../../db/schemas/connection';
 import { getDatabase } from '../../db';
-import { useMqttClientState } from '../../context/mqttClients';
+import { MqttClientState, useMqttClientState } from '../../context/mqttClients';
 import {
 	useSelectedConnectionId,
 	useCurrConnectionIdSetter,
@@ -20,6 +20,16 @@ const getConnectionDesc = (connection: IConnection | null): string => {
 	}:${connection.clientOptions.port}`;
 };
 
+type MappedClientState = 'unknown' | 'connected' | 'notConnected';
+const getMappedClientState = (
+	clientState: MqttClientState
+): MappedClientState => {
+	return clientState === MqttClientState.unknown
+		? 'unknown'
+		: clientState === MqttClientState.connected
+		? 'connected'
+		: 'notConnected';
+};
 const MqttConnection: FunctionComponent<Props> = ({ connectionId: id }) => {
 	const [connection, setConnection] = useState<IConnection | null>(null);
 	useEffect(() => {
@@ -31,7 +41,14 @@ const MqttConnection: FunctionComponent<Props> = ({ connectionId: id }) => {
 
 	const currSelectedConnectionId = useSelectedConnectionId();
 	const setSelectedConnectionId = useCurrConnectionIdSetter();
-	const { clientState, clientError } = useMqttClientState(id);
+
+	const { clientState } = useMqttClientState(id);
+	const [clientMappedState, setClientMappedState] = useState<MappedClientState>(
+		getMappedClientState(clientState)
+	);
+	useEffect(() => {
+		setClientMappedState(getMappedClientState(clientState));
+	}, [clientState]);
 
 	return (
 		<List.Item
@@ -43,11 +60,7 @@ const MqttConnection: FunctionComponent<Props> = ({ connectionId: id }) => {
 			<List.Item.Meta
 				className="connections-list-item-meta"
 				avatar={
-					<div
-						className={`connection-state-indicator ${clientState} ${
-							clientError ? 'error' : ''
-						}`}
-					/>
+					<div className={`connection-state-indicator ${clientMappedState}`} />
 				}
 				title={connection?.name || 'loading...'}
 				description={getConnectionDesc(connection)}
