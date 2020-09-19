@@ -10,7 +10,7 @@ export default function BottomToolbar() {
 			style={{
 				bottom: 0,
 				width: '100%',
-				height: '38px',
+				height: 'var(--statusbar-height)',
 				padding: '4px',
 				backgroundColor: '#333844',
 				flexGrow: 0,
