@@ -35,7 +35,7 @@ const MemoizedApp = React.memo(() => {
 	return (
 		<>
 			<SidePane className="sidepane" />
-			<div className="pages">
+			<Content className="content">
 				<Switch>
 					<Route path={routes.workspace} component={WorkSpace} />
 					<Route path={routes.welcome} component={Welcome} />
@@ -46,7 +46,7 @@ const MemoizedApp = React.memo(() => {
 						<Redirect to={routes.workspace} />
 					</Route>
 				</Switch>
-			</div>
+			</Content>
 		</>
 	);
 });

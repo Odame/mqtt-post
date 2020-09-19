@@ -23,10 +23,9 @@ export default function TabbedPage<T extends string>(
 	};
 
 	return (
-		<div className={`${props.className || ''} page-content tabbed-page`}>
-			{/* We use this to push the content visually down.
-			This is preferred over padding-top, in order to make `scroll-to-element` work */}
-			<div className="tabbed-page-content-pusher" />
+		<div
+			className={`${props.className || ''} fill-height fill-width tabbed-page`}
+		>
 			<Tabs
 				className="tabs-container"
 				activeKey={activeTab}

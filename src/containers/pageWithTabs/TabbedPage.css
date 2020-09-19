@@ -1,29 +1,31 @@
 .tabbed-page {
-	padding-bottom: 120px !important;
+	height: 100vh !important;
 }
 
-.tabbed-page .tabbed-page-content-pusher {
-	width: 100%;
-	background-color: #fdfdfd;
-	height: 60px;
-	margin-bottom: var(--default-padding);
+.tabbed-page .tabs-container {
+	height: 100% !important;
 }
 
 .tabbed-page .tabs-header-container {
-	position: fixed;
-	top: 0px;
-	left: var(--side-pane-width);
-	right: 0;
-	z-index: 1;
+	width: 100%;
 	background-color: #fdfdfd;
-	padding-top: calc(var(--default-padding) - 3px);
-	margin: 0px var(--default-padding);
+	padding: 0px var(--default-padding);
+	flex-grow: 0;
 }
 .tabbed-page .tabs-header-container .tabs-header {
-	margin: 0px;
+	margin: 1px;
 }
 .tabbed-page .tabs-header-container .tabs-header .btn-close:hover {
 	transform: scale(1.15);
+}
+
+.tabbed-page div.ant-tabs-content-holder {
+	overflow-x: hidden !important;
+	overflow-y: scroll !important;
+	flex-grow: 2;
+	padding: var(--default-padding);
+	/* simulate over scroll, to accommodate floating action button if any */
+	padding-bottom: 120px;
 }
 
 .tabbed-page .floating-action-button {
