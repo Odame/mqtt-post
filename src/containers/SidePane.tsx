@@ -29,12 +29,7 @@ export default function SidePane({ className }: SidePaneProps) {
 		>
 			<SidePaneCollapsedStateContextProvider value={collapsed}>
 				<div className="collapsed-toggle-button-container">
-					<Button
-						type="text"
-						onClick={toggleCollapsedState}
-						size="large"
-						className="btn-toggle-collapsed-state"
-					>
+					<Button type="text" onClick={toggleCollapsedState} size="large">
 						{collapsed ? (
 							<MenuUnfoldOutlined style={toggleCollapseButtonStyles} />
 						) : (

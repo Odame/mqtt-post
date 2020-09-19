@@ -6,16 +6,7 @@ import routes from '../constants/routes.json';
 
 export default function Welcome() {
 	return (
-		<div
-			style={{
-				height: '100%',
-				width: '100%',
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
+		<div className="fill-height fill-width center-children">
 			<Empty
 				image={emptySVG}
 				imageStyle={{

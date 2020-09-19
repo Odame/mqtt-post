@@ -41,10 +41,7 @@ export default function TabbedPage<T extends string>(
 						onClick={onClickClose}
 						className="btn-close"
 					>
-						<CloseOutlined
-							// twoToneColor="#FF3C2F"
-							style={{ fontSize: '18px', color: '#FF3C2F' }}
-						/>
+						<CloseOutlined style={{ fontSize: '1.5em', color: '#FF3C2F' }} />
 					</Button>
 				}
 				onChange={(activeKey) => setActiveTab(activeKey as T | undefined)}

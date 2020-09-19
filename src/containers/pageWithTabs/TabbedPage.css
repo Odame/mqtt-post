@@ -13,7 +13,7 @@
 	flex-grow: 0;
 }
 .tabbed-page .tabs-header-container .tabs-header {
-	margin: 1px;
+	margin: 0px;
 }
 .tabbed-page .tabs-header-container .tabs-header .btn-close:hover {
 	transform: scale(1.15);
@@ -25,7 +25,7 @@
 	flex-grow: 2;
 	padding: var(--default-padding);
 	/* simulate over scroll, to accommodate floating action button if any */
-	padding-bottom: 120px;
+	padding-bottom: 130px;
 }
 
 .tabbed-page .floating-action-button {
