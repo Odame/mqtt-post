@@ -192,8 +192,8 @@ const getClientInitialState = (client: MqttClient | null | undefined) => {
 		: MqttClientState.unknown;
 };
 /** Hook to track the state of a connection's related mqtt client */
-export const useMqttClientState = (connectionId: string) => {
-	const client = useMqttClient(connectionId);
+export const useMqttClientState = (connectionId: string | null) => {
+	const client = useMqttClient(connectionId || '');
 
 	const [clientState, setClientState] = useState<MqttClientState>(
 		getClientInitialState(client)
