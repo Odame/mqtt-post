@@ -8,6 +8,7 @@ import './ConnectionsList.css';
 import { Link } from 'react-router-dom';
 import { getDatabase } from '../../db';
 import { List, Typography } from 'antd';
+import { useIsSidePaneCollapsed } from '../../context/sidePane';
 const { Title } = Typography;
 
 export default function ConnectionsList() {
@@ -19,19 +20,23 @@ export default function ConnectionsList() {
 		return () => rxSubscription.unsubscribe();
 	}, []);
 
+	const isSidePaneCollapsed = useIsSidePaneCollapsed();
+
 	return (
 		<>
 			<div className="connections-list-header">
-				<Title level={3} className="no-highlight title">
-					Connections
-				</Title>
 				<Popover content="Create New Connection" mouseLeaveDelay={0}>
 					<Link to={routes.newConnection}>
 						<Button type="link" size="large" shape="circle">
-							<PlusOutlined style={{ fontSize: '26px', fontWeight: 700 }} />
+							<PlusOutlined style={{ fontSize: '28px', fontWeight: 700 }} />
 						</Button>
 					</Link>
 				</Popover>
+				{isSidePaneCollapsed ? null : (
+					<Title level={3} className="no-highlight title">
+						Connections
+					</Title>
+				)}
 			</div>
 			{connectionsIds.length === 0 ? (
 				<div className="connections-list empty">

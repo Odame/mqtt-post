@@ -8,11 +8,13 @@ import WorkSpace from './containers/WorkSpace';
 import NewConnection from './features/newConnection/NewConnection';
 import GeneralSettings from './features/generalSettings/GeneralSettings';
 import About from './features/About';
-import { Spin, Button, Result } from 'antd';
+import { Spin, Button, Result, Layout } from 'antd';
 import { initDatabase } from './db';
 import { quitApp, restartApp } from './utils';
 import { withMqttClients } from './context/mqttClients';
 import { withSelectedConnectionId } from './context/currConnId';
+
+const { Content } = Layout;
 
 type HOC = <P>(component: ComponentType<P>) => (props: P) => JSX.Element;
 const higherOderComponents: Array<HOC> = [
@@ -67,11 +69,11 @@ export default function App() {
 	}, []);
 
 	return (
-		<div className="App no-highlight">
+		<Layout className="App no-highlight">
 			{dbStatus === 'initialized' ? (
 				<ComposedApp />
 			) : (
-				<div className="extra-info-container">
+				<Content className="extra-info-container">
 					{dbStatus === 'error' ? (
 						<Result
 							status="error"
@@ -89,8 +91,8 @@ export default function App() {
 					) : (
 						<Spin size="large" tip="Initializing..." />
 					)}
-				</div>
+				</Content>
 			)}
-		</div>
+		</Layout>
 	);
 }

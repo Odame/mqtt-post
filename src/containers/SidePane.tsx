@@ -1,23 +1,50 @@
-import React from 'react';
+import React, { CSSProperties, useCallback, useState } from 'react';
 import ConnectionsList from '../features/connectionsList/ConnectionsList';
 import BottomToolbar from '../features/BottomToolbar';
-type Props = {
-	className: string;
+import { Button, Layout } from 'antd';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { SidePaneCollapsedStateContextProvider } from '../context/sidePane';
+const { Sider } = Layout;
+
+type SidePaneProps = {
+	className?: string;
 };
 
-const sidePaneStyle: React.CSSProperties = {
-	padding: '0px !important',
-	borderRight: '0.5px solid #E6E8F1',
-	backgroundColor: '#F9FAFD',
-	display: 'flex',
-	flexDirection: 'column',
+const toggleCollapseButtonStyles: CSSProperties = {
+	fontSize: '22px',
+	color: '#000000',
 };
+export default function SidePane({ className }: SidePaneProps) {
+	const [collapsed, setCollapsed] = useState(false);
+	const toggleCollapsedState = useCallback(() => {
+		setCollapsed((collapsed) => !collapsed);
+	}, []);
 
-export default function SidePane({ className }: Props) {
 	return (
-		<div className={`${className || ''}`} style={sidePaneStyle}>
-			<ConnectionsList />
-			<BottomToolbar />
-		</div>
+		<Sider
+			className={`${className || ''} ${collapsed ? 'collapsed' : 'expanded'}`}
+			collapsible
+			collapsed={collapsed}
+			trigger={null}
+		>
+			<SidePaneCollapsedStateContextProvider value={collapsed}>
+				<div className="collapsed-toggle-button-container">
+					<Button
+						type="text"
+						onClick={toggleCollapsedState}
+						size="large"
+						className="btn-toggle-collapsed-state"
+					>
+						{collapsed ? (
+							<MenuUnfoldOutlined style={toggleCollapseButtonStyles} />
+						) : (
+							<MenuFoldOutlined style={toggleCollapseButtonStyles} />
+						)}
+					</Button>
+				</div>
+				<ConnectionsList />
+				<BottomToolbar />
+			</SidePaneCollapsedStateContextProvider>
+		</Sider>
 	);
 }

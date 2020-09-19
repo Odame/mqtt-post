@@ -1,7 +1,9 @@
 :root {
 	--side-pane-width: 280px;
+	--side-pane-collapsed-width: 55px;
 	--default-padding: 18px;
 	--statusbar-height: 36px;
+	--app-background-color: #f9fafd;
 }
 
 .App {
@@ -16,12 +18,49 @@
 }
 
 .App .sidepane {
-	height: 100%;
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: var(--side-pane-width);
+	height: 100vh;
 	overflow: hidden;
+	padding: 0px !important;
+	border-right: 0.5px solid #e6e8f1;
+	background-color: #f9fafd;
+	display: flex;
+	flex-direction: column;
+}
+.App .sidepane.expanded {
+	flex-grow: 0 !important;
+	flex-shrink: 0 !important;
+	flex-basis: var(--side-pane-width) !important;
+	max-width: var(--side-pane-width) !important;
+	min-width: var(--side-pane-width) !important;
+	width: var(--side-pane-width) !important;
+}
+.App .sidepane.collapsed {
+	flex-grow: 0 !important;
+	flex-shrink: 0 !important;
+	flex-basis: var(--side-pane-collapsed-width) !important;
+	max-width: var(--side-pane-collapsed-width) !important;
+	min-width: var(--side-pane-collapsed-width) !important;
+	width: var(--side-pane-collapsed-width) !important;
+}
+
+.App .sidepane div.collapsed-toggle-button-container {
+	position: relative;
+	width: 100%;
+	height: 40px;
+	background-color: #f0f1f3;
+}
+
+.App .sidepane .btn-toggle-collapsed-state {
+	position: absolute;
+}
+
+.App .sidepane.expanded .btn-toggle-collapsed-state {
+	top: 0;
+	right: 0;
+}
+.App .sidepane.collapsed .btn-toggle-collapsed-state {
+	top: 0;
+	left: 0;
 }
 
 .App .pages {
