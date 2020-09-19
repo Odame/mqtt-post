@@ -26,6 +26,11 @@
 	display: flex;
 	flex-direction: column;
 }
+.App .sidepane .ant-layout-sider-children {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
 .App .sidepane.expanded {
 	flex-grow: 0 !important;
 	flex-shrink: 0 !important;

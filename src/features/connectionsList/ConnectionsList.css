@@ -15,7 +15,11 @@
 	height: 100%;
 	flex-grow: 2;
 	overflow-y: auto;
-	/* background-color: darkslategray; */
+}
+.connections-list.hidden {
+	/* use visibility: hidden; instead of display: none;
+	This will keep the connections-list in DOM still */
+	visibility: hidden;
 }
 
 .connections-list.empty {
@@ -60,4 +64,20 @@
 }
 .connections-list-item .connection-state-indicator.error {
 	background-color: #ff3c2f !important;
+}
+
+.connections-list-item
+	.connections-list-item-meta
+	.ant-list-item-meta-content
+	> .ant-list-item-meta-title,
+.connections-list-item
+	.connections-list-item-meta
+	.ant-list-item-meta-content
+	> .ant-list-item-meta-description {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: block;
+	width: 100%;
+	min-width: 1px;
 }

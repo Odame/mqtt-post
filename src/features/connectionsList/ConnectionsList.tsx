@@ -51,7 +51,7 @@ export default function ConnectionsList() {
 				</div>
 			) : (
 				<List
-					className="connections-list"
+					className={`connections-list ${isSidePaneCollapsed ? 'hidden' : ''}`}
 					itemLayout="horizontal"
 					dataSource={connectionsIds}
 					rowKey={(connectionId) => connectionId}
