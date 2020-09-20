@@ -6,6 +6,8 @@ import StatusBar from './StatusBar';
 import ToolBar from './ToolBar';
 import SplitPane from 'react-split-pane';
 import './Workspace.css';
+import Subscriptions from '../Subscriptions/Subscriptions';
+import Publishes from '../Publishes/Publishes';
 
 export default function WorkSpace() {
 	const selectedConnectionId = useSelectedConnectionId();
@@ -27,8 +29,12 @@ export default function WorkSpace() {
 					defaultSize={300}
 				>
 					<SplitPane split="horizontal" minSize={200} maxSize={-200}>
-						<div className="pane subscriptions-pane">Subscriptions</div>
-						<div className="pane publishes-pane">Publishes</div>
+						<div className="workspace-pane subscriptions-pane fill-height fill-width">
+							<Subscriptions />
+						</div>
+						<div className="workspace-pane publishes-pane fill-width fill-height">
+							<Publishes />
+						</div>
 					</SplitPane>
 					<SplitPane
 						split="horizontal"

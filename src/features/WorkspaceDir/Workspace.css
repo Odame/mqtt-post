@@ -14,6 +14,9 @@
 	position: relative;
 	flex-grow: 2;
 }
+/* .workspace .workspace-pane {
+    height: 100%;
+} */
 .workspace .multi-panes .Resizer {
 	background: #000;
 	opacity: 0.2;

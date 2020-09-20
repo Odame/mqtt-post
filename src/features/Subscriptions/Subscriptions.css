@@ -1,0 +1,14 @@
+.subscriptions {
+	overflow-x: hidden;
+	overflow-y: auto;
+	margin: 0px;
+	display: flex;
+	flex-direction: column;
+	contain: layout;
+}
+
+.subscriptions div.ant-card-body {
+	overflow-y: hidden;
+	overflow-y: scroll;
+	flex-grow: 2;
+}
