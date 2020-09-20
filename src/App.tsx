@@ -4,7 +4,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import SidePane from './containers/SidePane';
 import Welcome from './features/Welcome';
 import routes from './constants/routes.json';
-import WorkSpace from './containers/WorkSpace';
+import WorkSpace from './features/WorkspaceDir/WorkSpace';
 import NewConnection from './features/newConnection/NewConnection';
 import GeneralSettings from './features/generalSettings/GeneralSettings';
 import About from './features/About';

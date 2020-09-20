@@ -39,7 +39,7 @@ export default function NewConnection() {
 
 	return (
 		<TabbedPage
-			className="new-connection"
+			className="new-connection main-page"
 			tabs={{
 				newConnection: [
 					'New Connection',

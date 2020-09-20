@@ -1,8 +1,8 @@
 :root {
-	--side-pane-width: 280px;
+	--side-pane-width: 240px;
 	--side-pane-collapsed-width: 55px;
 	--default-padding: 18px;
-	--statusbar-height: 36px;
+	--statusbar-height: 30px;
 	--app-background-color: #f9fafd;
 }
 
@@ -60,6 +60,9 @@
 .App .content {
 	height: 100vh;
 	overflow: hidden;
+}
+.App .main-page {
+	height: 100vh !important;
 }
 
 .App > .extra-info-container {
