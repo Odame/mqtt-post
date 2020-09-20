@@ -12,12 +12,15 @@ type Props = {
 	connectionId: string;
 };
 
-const getConnectionDesc = (connection: IConnection | null): string => {
+export const getConnectionDesc = (connection: IConnection | null): string => {
 	if (!connection) return '...';
 
+	const resolvedPath = ['ws', 'wss'].includes(connection.clientOptions.protocol)
+		? connection.clientOptions.path
+		: '';
 	return `${connection.clientOptions.username || ''}@${
 		connection.clientOptions.hostname
-	}:${connection.clientOptions.port}`;
+	}:${connection.clientOptions.port}${resolvedPath}`;
 };
 
 type MappedClientState = 'unknown' | 'connected' | 'notConnected';
